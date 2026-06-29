@@ -1,0 +1,30 @@
+{
+  "name": "@functorz/runtime-renderer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.tsx",
+    "./dist": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit --pretty false",
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "@functorz/schema": "workspace:*",
+    "@tarojs/components": "4.2.0",
+    "@tarojs/plugin-platform-weapp": "4.2.0",
+    "@tarojs/taro": "4.2.0",
+    "react": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.31",
+    "typescript": "5.9.3",
+    "vitest": "4.1.9"
+  }
+}

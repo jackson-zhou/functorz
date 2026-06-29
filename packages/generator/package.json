@@ -1,0 +1,25 @@
+{
+  "name": "@functorz/generator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit --pretty false",
+    "build": "tsc -p tsconfig.build.json",
+    "test:integration": "tsx src/verify-generated.ts"
+  },
+  "dependencies": {
+    "@functorz/schema": "workspace:*",
+    "jszip": "3.10.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.15",
+    "tsx": "4.22.4",
+    "typescript": "5.9.3",
+    "vitest": "4.1.9"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "@functorz/schema",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./fixtures": {
+      "types": "./dist/fixtures.d.ts",
+      "default": "./dist/fixtures.js"
+    },
+    "./dist": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./fixtures-dist": {
+      "types": "./dist/fixtures.d.ts",
+      "default": "./dist/fixtures.js"
+    }
+  },
+  "scripts": {
+    "test": "tsc -p tsconfig.build.json && vitest run",
+    "typecheck": "tsc -p tsconfig.build.json && tsc --noEmit --pretty false",
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "zod": "4.1.12"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.9"
+  }
+}

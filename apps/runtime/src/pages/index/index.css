@@ -1,0 +1,25 @@
+.fz-page {
+  min-height: 100vh;
+  background: #f7f7fa;
+}
+.fz-section {
+  display: flex;
+  flex-direction: column;
+}
+.fz-card {
+  margin: 12px;
+  padding: 16px;
+  border: 1px solid #ececf1;
+  background: #fff;
+}
+.preview-error-overlay {
+  position: fixed;
+  z-index: 9999;
+  inset: 12px;
+  height: fit-content;
+  padding: 12px;
+  border: 1px solid #e2918b;
+  border-radius: 8px;
+  background: #fff0ef;
+  color: #9d2822;
+}

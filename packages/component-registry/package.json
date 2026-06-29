@@ -1,0 +1,22 @@
+{
+  "name": "@functorz/component-registry",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit --pretty false",
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "@functorz/schema": "workspace:*",
+    "zod": "4.1.12"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "4.1.9"
+  }
+}
