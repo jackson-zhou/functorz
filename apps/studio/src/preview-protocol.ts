@@ -21,8 +21,16 @@ const error = z.object({
 })
 export const previewMessage = z.discriminatedUnion('type', [update, ready, error])
 export type PreviewMessage = z.infer<typeof previewMessage>
+function uuid(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID()
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
+  })
+}
+
 export function createPreviewUpdate(project: ProjectSchema, pageId: string): PreviewMessage {
-  return { protocol: 1, type: 'preview:update', requestId: crypto.randomUUID(), project, pageId }
+  return { protocol: 1, type: 'preview:update', requestId: uuid(), project, pageId }
 }
 export function isTrustedPreviewMessage(
   event: MessageEvent,

@@ -43,10 +43,17 @@ export default function Index() {
     return () => window.removeEventListener('message', listener)
   }, [])
   useEffect(() => {
+    function uuid(): string {
+      if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID()
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0
+        return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
+      })
+    }
     if (window.parent !== window) {
       const parentOrigin = document.referrer ? new URL(document.referrer).origin : location.origin
       window.parent.postMessage(
-        { protocol: 1, type: 'preview:ready', requestId: crypto.randomUUID() },
+        { protocol: 1, type: 'preview:ready', requestId: uuid() },
         parentOrigin,
       )
     }
