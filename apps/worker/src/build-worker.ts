@@ -48,18 +48,25 @@ export class MiniprogramCiProvider implements WeChatCiProvider {
       privateKeyPath: this.privateKeyPath,
       ignores: ['node_modules/**/*'],
     })
-    const result = await ci.preview({
-      project,
-      desc: options.description,
-      setting: { es6: true, minify: true },
-      qrcodeFormat: 'base64',
-      qrcodeOutputDest: undefined,
-      pagePath: options.pagePath,
-      searchQuery: options.searchQuery,
-    })
-    const base64 = (result as { qrcode?: string }).qrcode
-    if (!base64) throw new Error('WeChat CI did not return a QR code')
-    return `data:image/png;base64,${base64}`
+    // miniprogram-ci requires a real file path for qrcodeOutputDest even when
+    // requesting base64 output, so write to a temp file and clean it up after.
+    const qrPath = join(tmpdir(), `functorz-qr-${Date.now()}-${Math.random().toString(36).slice(2)}.png`)
+    try {
+      const result = await ci.preview({
+        project,
+        desc: options.description,
+        setting: { es6: true, minify: true },
+        qrcodeFormat: 'base64',
+        qrcodeOutputDest: qrPath,
+        pagePath: options.pagePath,
+        searchQuery: options.searchQuery,
+      })
+      const base64 = (result as { qrcode?: string }).qrcode
+      if (!base64) throw new Error('WeChat CI did not return a QR code')
+      return `data:image/png;base64,${base64}`
+    } finally {
+      await rm(qrPath, { force: true })
+    }
   }
 }
 export class BuildWorker {

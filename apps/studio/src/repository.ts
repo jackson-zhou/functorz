@@ -131,7 +131,12 @@ export class FallbackProjectRepository implements LocalProjectRepository {
   ) {}
   private async run<T>(primary: () => Promise<T>, fallback: () => Promise<T>): Promise<T> {
     try {
-      return await primary()
+      return await Promise.race([
+        primary(),
+        new Promise<T>((_, reject) =>
+          setTimeout(() => reject(new Error('Primary repository timeout')), 3000),
+        ),
+      ])
     } catch (error) {
       this.onFallback?.(error)
       return fallback()
@@ -183,11 +188,13 @@ export class MemoryProjectRepository implements LocalProjectRepository {
 }
 export function scheduleAutoSave(repository: LocalProjectRepository, delay = 200) {
   let timer: ReturnType<typeof setTimeout> | undefined
+  let pendingProject: ProjectSchema | undefined
   return (project: ProjectSchema, onDone: (ok: boolean) => void) => {
     clearTimeout(timer)
+    pendingProject = project
     timer = setTimeout(
       () =>
-        void repository.save(project).then(
+        void repository.save(pendingProject!).then(
           () => onDone(true),
           () => onDone(false),
         ),

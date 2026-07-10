@@ -3,6 +3,7 @@ import {
   validateProject,
   type ComponentNode,
   type ComponentType,
+  type EventsSchema,
   type ProjectSchema,
 } from '@functorz/schema'
 
@@ -48,6 +49,7 @@ export type EditorCommand =
   | { type: 'updateProps'; nodeId: string; props: Record<string, unknown> }
   | { type: 'updateStyle'; nodeId: string; style: ComponentNode['style'] }
   | { type: 'updateAction'; nodeId: string; action: ComponentNode['action'] | undefined }
+  | { type: 'updateEvents'; nodeId: string; events: EventsSchema | undefined }
   | { type: 'updateTheme'; theme: Partial<ProjectSchema['theme']> }
 
 function uuid(): string {
@@ -135,6 +137,13 @@ export function executeCommand(
       if (!node) throw new Error('Node not found')
       if (command.action) node.action = command.action
       else delete node.action
+      break
+    }
+    case 'updateEvents': {
+      const node = findNode(project, command.nodeId)?.node
+      if (!node) throw new Error('Node not found')
+      if (command.events) node.events = command.events
+      else delete node.events
       break
     }
     case 'updateTheme': {

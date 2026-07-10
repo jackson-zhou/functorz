@@ -14,10 +14,29 @@
 
 ## 注意事项
 
-### crypto.randomUUID 兼容性
+### 代码规范
 
-项目使用 `crypto.randomUUID()` 生成唯一 ID（组件节点、预览请求等），该 API **仅在 HTTPS 安全上下文或 localhost 下可用**。当前生产环境为 HTTP，会导致 Chrome/Edge 等浏览器拖拽组件时报 `crypto.randomUUID is not a function`。
+- **先理解再动手**：修改或新增代码前，必须先阅读相关文件，理解项目的语言（React + TypeScript）、组件风格（自定义 CSS，无第三方 UI 库）、状态管理（zustand）、事件绑定模式（React JSX camelCase: `onClick`, `onChange` 等），确保新代码与现有风格一致。
+- **组件复用优先**：在页面上添加组件时，必须优先使用 `apps/studio/src/components/` 目录下已有的组件。如果没有现成可用组件，必须先询问用户是否创建新组件，经确认后再继续。禁止在未确认的情况下自行新建组件，避免出现无法复现的页面。
+- **事件绑定复用**：交互绑定事件时同样遵循上述规则，优先参考已有的事件绑定模式和写法，保持一致性。
 
-修复方式：在 `packages/editor-core/src/index.ts`、`apps/studio/src/preview-protocol.ts`、`apps/runtime/src/pages/index/index.tsx` 三处添加降级逻辑：优先使用 `crypto.randomUUID()`，不可用时回退到 `Math.random()` 的 UUID v4 实现。
+### 修改代码后自动部署到 111.207.40.188
 
-参考：[MDN crypto.randomUUID - Secure context required](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID#browser_compatibility)
+Studio 是静态前端（Vite 构建产物），不需要构建 Docker 镜像。轻量部署流程：
+
+1. **本地构建**：
+   ```bash
+   pnpm --filter studio build
+   ```
+
+2. **rsync 到服务器**：
+   ```bash
+   rsync -avz --delete apps/studio/dist/ zhoujs@111.207.40.188:~/studio-dist/
+   ```
+
+3. **docker cp 到容器**（无需重启）：
+   ```bash
+   ssh zhoujs@111.207.40.188 "sudo docker cp ~/studio-dist/. infra-studio-1:/usr/share/nginx/html/"
+   ```
+
+4. **验证**：访问 http://111.207.40.188:1000 确认修改生效。

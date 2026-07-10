@@ -34,6 +34,7 @@ services:
         WECHAT_APP_ID: '${WECHAT_APP_ID:-}',
         WECHAT_PRIVATE_KEY_PATH: '${WECHAT_PRIVATE_KEY_PATH:-}',
       }
+    volumes: ['./secrets:/run/secrets:ro']
     depends_on: { postgres: { condition: service_healthy }, redis: { condition: service_healthy } }
     deploy: { resources: { limits: { memory: 2G } } }
     restart: unless-stopped

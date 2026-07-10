@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>低代码平台迁移方案 · 第一期</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  :root{
+    --ink:#1f2430; --muted:#6b7280; --line:#e5e7eb; --bg:#f6f7f9;
+    --brand:#5b5bd6; --accent:#f59e0b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",Roboto,sans-serif;
+    line-height:1.72;}
+  .wrap{max-width:1080px;margin:0 auto;padding:48px 28px 90px;}
+  header.top{border-bottom:3px solid var(--brand);padding-bottom:20px;}
+  .eyebrow{color:var(--brand);font-weight:700;letter-spacing:.08em;font-size:12.5px;text-transform:uppercase;}
+  h1{font-size:29px;margin:8px 0 6px;}
+  .sub{color:var(--muted);font-size:15px;}
+  h2{font-size:21px;margin:54px 0 6px;padding-left:12px;border-left:5px solid var(--brand);}
+  h2 .en{color:var(--muted);font-weight:400;font-size:14px;margin-left:8px;}
+  .lead{color:#374151;font-size:15px;margin:10px 0 20px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;
+    box-shadow:0 1px 2px rgba(16,24,40,.04);margin:16px 0;}
+  .diagram{overflow:auto;text-align:center;}
+  .note{background:#fff8ec;border:1px solid #f3e0b8;border-radius:12px;padding:13px 18px;color:#8a5a00;font-size:14px;}
+  .callouts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0;}
+  .callout{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px 16px;font-size:14px;}
+  .callout b{color:var(--brand);display:block;margin-bottom:4px;}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);
+    border-radius:12px;overflow:hidden;font-size:14px;}
+  th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);}
+  thead th{background:#eef0f7;color:#374151;font-weight:700;}
+  .price{text-align:right;white-space:nowrap;}
+  .modrow td{background:#fafbff;font-weight:700;}
+  tfoot td{background:var(--brand);color:#fff;font-weight:800;font-size:15.5px;}
+  .roadmap{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;}
+  .phase{flex:1 1 155px;border:1px solid var(--line);border-radius:12px;padding:13px 14px;background:#fff;}
+  .phase.first{border-color:var(--brand);box-shadow:0 0 0 2px rgba(91,91,214,.12);}
+  .phase .p{font-weight:800;color:var(--brand);font-size:12.5px;}
+  .phase .t{font-size:13.5px;margin-top:4px;color:#374151;}
+  .tl{margin:6px 0 0;padding-left:20px;}
+  .tl li{margin:7px 0;}
+  footer{margin-top:56px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padding-top:16px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="eyebrow">项目建议书 · Proposal</div>
+    <h1>低代码平台迁移方案：PC 版 → 微信小程序 / H5</h1>
+    <div class="sub">完整平台为多期框架工程 · 本文覆盖 <b>第一期</b>：可运行、可演示、可验证方向</div>
+  </header>
+
+  <h2>一、完整平台全景架构 <span class="en">Full Platform Architecture</span></h2>
+  <p class="lead">低代码平台的本质，是「用一份声明式描述把 App 讲清楚（界面 / 数据 / 逻辑），再由引擎去解释并运行它」。完整平台由五层、三大引擎构成，横跨设计态、运行态、数据、集成与平台底座——这也是原 PC 版多年建设所沉淀的复杂度。</p>
+  <div class="card diagram">
+    <pre class="mermaid">
+flowchart TB
+  subgraph DESIGN["设计态 · Studio（甲方运营 / 开发使用）"]
+    direction LR
+    B1["拖拉页面搭建器<br/>画布 · 组件树 · 属性面板"]
+    B2["图化流程编辑器<br/>节点 · 连线 · 条件构造器"]
+    B3["数据模型设计器<br/>实体 · 字段 · 关系"]
+    B4["主题 / 样式系统"]
+    B5["模板市场 · 组件市场"]
+  end
+
+  subgraph SCHEMA["描述层 · 声明式 Schema（平台的语言）"]
+    direction LR
+    S1["组件树 Schema"]
+    S2["流程 Schema / BPMN"]
+    S3["数据模型 Schema"]
+    S4["表达式 · 绑定 AST"]
+  end
+
+  subgraph RUNTIME["运行态 · 三大引擎"]
+    subgraph CLIENT["端上 · H5 + 微信小程序（Taro）"]
+      direction LR
+      E1["① 界面布局引擎<br/>渲染 · 数据绑定 · 列表"]
+      E2C["② 图化执行引擎<br/>流程解释器 · 本地算子"]
+      ST["状态存储<br/>页面态 · 会话态"]
+    end
+    subgraph SERVER["服务端"]
+      direction LR
+      E2S["② 图化执行引擎<br/>Snurr / CompileFlow"]
+      E3["③ 服务引擎<br/>RPC 网关 · 重算子"]
+      OP["算子库<br/>数据 · 集成 · 工具"]
+    end
+  end
+
+  subgraph DATA["数据与集成"]
+    direction LR
+    D1[("RisingWave<br/>数据存储 / 流式")]
+    D2["自动 CRUD API<br/>查询 · 过滤 · 分页"]
+    D3["微信 登录 / 支付 / 分享"]
+    D4["HTTP 连接器 · 密钥管理"]
+  end
+
+  subgraph PLATFORM["平台底座"]
+    direction LR
+    P1["账号 · 权限 · 多租户"]
+    P2["发布 · 版本 · 回滚"]
+    P3["流程调试器"]
+    P4["协作 · 审计"]
+  end
+
+  DESIGN --> SCHEMA --> RUNTIME
+  E1 <--> ST
+  E2C <--> ST
+  E2C -->|"RPC 算子"| E3
+  E2S --> E3
+  E3 --> OP --> DATA
+  E3 --> D1 --> D2
+  RUNTIME --> PLATFORM
+    </pre>
+  </div>
+  <div class="note">这张图代表<b>整个工程的量级</b>（多期推进、投入以百万计）。能把它讲清楚、并按期逐块落地，是本项目最稀缺的能力门槛——大多数团队卡在「界面拖拉」之后的渲染引擎与图化执行引擎上。</div>
+
+  <h2>二、分期落地路线 <span class="en">Phased Roadmap</span></h2>
+  <p class="lead">完整平台按「可交付、可验收、可独立计价」的节奏分期推进。每一期都是上一期的自然生长，甲方每期都能拿到可用成果，风险与投入逐期释放。</p>
+  <div class="roadmap">
+    <div class="phase first"><div class="p">第一期 · 本报价</div><div class="t">三引擎骨架 + 拖拉搭建 + 电商样板</div></div>
+    <div class="phase"><div class="p">第二期</div><div class="t">数据模型设计器 + 增删改查 + 事务</div></div>
+    <div class="phase"><div class="p">第三期</div><div class="t">微信 登录 / 支付 / 分享 + 连接器 + 密钥</div></div>
+    <div class="phase"><div class="p">第四期</div><div class="t">算子市场 + 复杂流程 + 小程序双端对齐</div></div>
+    <div class="phase"><div class="p">第五期 +</div><div class="t">权限多租户 + 模板市场 + 调试器 + 协作</div></div>
+  </div>
+
+  <h2>三、第一期实现范围 <span class="en">Phase 1 Scope</span></h2>
+  <p class="lead">第一期是全景图主干的一条<b>最薄纵切</b>：从「拖拉搭界面 / 拖拉搭流程」，到「三大引擎运行」，再到「后端数据」，用一个电商场景（登录 + 商品列表）端到端跑通。范围可控，但把整套架构的骨架真正立了起来。</p>
+  <div class="card diagram">
+    <pre class="mermaid">
+flowchart TB
+  subgraph DESIGN["设计态 · Studio（第一期 · 简化版）"]
+    direction LR
+    B1["拖拉页面搭建器<br/>画布 · 属性面板"]
+    B2["图化流程编辑器<br/>顺序 · 分支 · 条件"]
+  end
+
+  subgraph SCHEMA["描述层（第一期）"]
+    direction LR
+    S1["组件树 Schema"]
+    S2["流程 Schema"]
+    S4["表达式 · 绑定"]
+  end
+
+  subgraph CLIENT["端上 · 先 H5（架构预留小程序）"]
+    direction LR
+    E1["① 界面布局引擎<br/>渲染 + 绑定 + 列表"]
+    E2C["② 流程解释器<br/>+ 5 个基础算子"]
+    ST["状态存储<br/>页面态 + 会话态 token"]
+  end
+
+  subgraph SERVER["服务端（第一期）"]
+    direction LR
+    E3["③ RPC 网关"]
+    LG["登录鉴权<br/>token 签发 / 校验"]
+    PD["商品数据算子"]
+    D1[("RisingWave<br/>作数据存储")]
+  end
+
+  subgraph DEMO["电商样板（可演示）"]
+    direction LR
+    PG1["登录页"]
+    PG2["商品列表页"]
+  end
+
+  B1 --> S1 --> E1
+  B2 --> S2 --> E2C
+  E1 <--> ST
+  E2C <--> ST
+  E2C -->|"调接口算子"| E3
+  E3 --> LG
+  E3 --> PD --> D1
+  E1 --> DEMO
+    </pre>
+  </div>
+  <div class="callouts">
+    <div class="callout"><b>① 电商可用</b>登录 + 商品列表端到端跑通，带鉴权的真实数据流。</div>
+    <div class="callout"><b>② 甲方能拖拉</b>可视化拖拉搭出页面，可视化连线搭出业务流程。</div>
+    <div class="callout"><b>③ 骨架立起</b>三大引擎框架成型，即全景图主干的第一块。</div>
+  </div>
+
+  <h2>四、第一期交付清单与报价 <span class="en">Deliverables &amp; Quote</span></h2>
+  <p class="lead">工期 <b>3 个月</b>，总价 <b>¥200,000</b>。按模块拆分如下，各项可独立核算：</p>
+  <table>
+    <thead><tr><th>模块</th><th>交付项</th><th class="price">报价</th></tr></thead>
+    <tbody>
+      <tr class="modrow"><td>模块一 · 界面布局引擎 &amp; 拖拉搭建</td><td></td><td class="price">¥62,000</td></tr>
+      <tr><td></td><td>可视化拖拉页面搭建器（画布 / 组件树 / 属性面板）</td><td class="price">¥30,000</td></tr>
+      <tr><td></td><td>组件渲染引擎 + 数据绑定（H5，架构预留小程序）</td><td class="price">¥20,000</td></tr>
+      <tr><td></td><td>商城页面组件（登录页 / 商品列表 / 商品卡片）</td><td class="price">¥12,000</td></tr>
+
+      <tr class="modrow"><td>模块二 · 图化执行引擎 &amp; 拖拉流程</td><td></td><td class="price">¥68,000</td></tr>
+      <tr><td></td><td>可视化流程编辑器（简化版：节点 / 连线 / 条件构造）</td><td class="price">¥30,000</td></tr>
+      <tr><td></td><td>流程解释器（顺序 / 分支 / 错误处理）</td><td class="price">¥20,000</td></tr>
+      <tr><td></td><td>算子框架 + 5 个基础算子（读表单 / 写状态 / 导航 / 调接口 / 条件）</td><td class="price">¥18,000</td></tr>
+
+      <tr class="modrow"><td>模块三 · 服务引擎（后端）</td><td></td><td class="price">¥45,000</td></tr>
+      <tr><td></td><td>RPC 网关 + 算子调度</td><td class="price">¥15,000</td></tr>
+      <tr><td></td><td>登录鉴权（token 签发 / 校验）</td><td class="price">¥12,000</td></tr>
+      <tr><td></td><td>商品数据算子 + RisingWave 接入</td><td class="price">¥18,000</td></tr>
+
+      <tr class="modrow"><td>模块四 · 电商样板 &amp; 联调</td><td></td><td class="price">¥20,000</td></tr>
+      <tr><td></td><td>登录 + 商品列表端到端跑通</td><td class="price">¥13,000</td></tr>
+      <tr><td></td><td>部署 + 演示环境</td><td class="price">¥7,000</td></tr>
+
+      <tr class="modrow"><td>模块五 · 交付</td><td></td><td class="price">¥5,000</td></tr>
+      <tr><td></td><td>架构文档 + 第一期验收演示</td><td class="price">¥5,000</td></tr>
+    </tbody>
+    <tfoot><tr><td colspan="2">合计（工期 3 个月）</td><td class="price">¥200,000</td></tr></tfoot>
+  </table>
+
+  <h2>五、三个月排期 <span class="en">Timeline</span></h2>
+  <ol class="tl">
+    <li><b>第 1 月</b>：共享框架（Schema / 表达式 / 算子接口 / 状态存储）+ 界面布局引擎 + 拖拉页面搭建器。</li>
+    <li><b>第 2 月</b>：图化执行引擎（解释器 + 基础算子）+ 拖拉流程编辑器 + 服务引擎 RPC 网关与鉴权。</li>
+    <li><b>第 3 月</b>：商品数据算子 + RisingWave 接入 + 电商样板端到端联调 + 部署演示 + 第一期验收。</li>
+  </ol>
+
+  <footer>
+    本建议书仅覆盖第一期。完整平台为多期框架合同，各期独立范围、独立验收、独立计价。<br/>
+    技术栈：Taro（H5 + 微信小程序）· React · RisingWave · Snurr / CompileFlow（图化执行）。
+  </footer>
+
+</div>
+<script>
+  mermaid.initialize({
+    startOnLoad:true, theme:'base',
+    flowchart:{ htmlLabels:true, curve:'basis', nodeSpacing:34, rankSpacing:44 },
+    themeVariables:{
+      primaryColor:'#eef0ff', primaryBorderColor:'#5b5bd6', primaryTextColor:'#1f2430',
+      lineColor:'#9aa2b1', fontSize:'13px',
+      clusterBkg:'#ffffff', clusterBorder:'#c9cede'
+    }
+  });
+</script>
+</body>
+</html>

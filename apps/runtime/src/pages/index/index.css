@@ -1,6 +1,7 @@
 .fz-page {
   min-height: 100vh;
-  background: #f7f7fa;
+  padding-bottom: 74px;
+  background: #fff;
 }
 .fz-section {
   display: flex;

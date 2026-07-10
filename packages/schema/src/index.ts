@@ -15,6 +15,16 @@ export const componentTypes = [
   'Swiper',
   'Form',
   'Input',
+  'Tabs',
+  'Badge',
+  'Tag',
+  'FAB',
+  'AppHeader',
+  'PetCard',
+  'BottomNav',
+  'SearchBar',
+  'ProductCard',
+  'Countdown',
 ] as const
 export type ComponentType = (typeof componentTypes)[number]
 
@@ -28,6 +38,30 @@ export const styleSchema = z
     align: z.enum(['start', 'center', 'end', 'stretch']).optional(),
     gap: z.enum(['none', 'xs', 'sm', 'md', 'lg']).optional(),
     columns: z.number().int().min(1).max(4).optional(),
+    width: z.number().int().min(0).max(2000).optional(),
+    height: z.number().int().min(0).max(2000).optional(),
+    minHeight: z.number().int().min(0).max(4000).optional(),
+    flex: z.number().min(0).max(20).optional(),
+    paddingTop: z.number().int().min(0).max(500).optional(),
+    paddingRight: z.number().int().min(0).max(500).optional(),
+    paddingBottom: z.number().int().min(0).max(500).optional(),
+    paddingLeft: z.number().int().min(0).max(500).optional(),
+    marginTop: z.number().int().min(-500).max(500).optional(),
+    marginRight: z.number().int().min(-500).max(500).optional(),
+    marginBottom: z.number().int().min(-500).max(500).optional(),
+    marginLeft: z.number().int().min(-500).max(500).optional(),
+    borderWidth: z.number().int().min(0).max(20).optional(),
+    borderColor: z.string().max(32).optional(),
+    position: z.enum(['relative', 'absolute', 'fixed']).optional(),
+    top: z.number().int().min(-2000).max(4000).optional(),
+    right: z.number().int().min(-2000).max(4000).optional(),
+    bottom: z.number().int().min(-2000).max(4000).optional(),
+    left: z.number().int().min(-2000).max(4000).optional(),
+    zIndex: z.number().int().min(-100).max(10000).optional(),
+    overflow: z.enum(['visible', 'hidden', 'auto']).optional(),
+    fontWeight: z.enum(['normal', 'medium', 'semibold', 'bold']).optional(),
+    textAlign: z.enum(['left', 'center', 'right']).optional(),
+    objectFit: z.enum(['cover', 'contain', 'fill']).optional(),
   })
   .strict()
 
@@ -38,12 +72,110 @@ export const actionSchema = z.discriminatedUnion('type', [
 ])
 export type ActionSchema = z.infer<typeof actionSchema>
 
+export const flowNodeTypes = [
+  'start',
+  'end',
+  'api',
+  'alert',
+  'navigate',
+  'condition',
+  'setData',
+] as const
+export type FlowNodeType = (typeof flowNodeTypes)[number]
+
+export const apiConfigSchema = z
+  .object({
+    url: z.string(),
+    method: z.enum(['GET', 'POST']),
+    params: z.record(z.string(), z.string()).optional(),
+    body: z.string().optional(),
+  })
+  .strict()
+export type ApiConfig = z.infer<typeof apiConfigSchema>
+
+export const alertConfigSchema = z
+  .object({
+    type: z.enum(['success', 'error', 'info']),
+    message: z.string(),
+  })
+  .strict()
+export type AlertConfig = z.infer<typeof alertConfigSchema>
+
+export const navigateConfigSchema = z
+  .object({
+    pageId: z.string().uuid(),
+    params: z.record(z.string(), z.string()).optional(),
+  })
+  .strict()
+export type NavigateConfig = z.infer<typeof navigateConfigSchema>
+
+export const setDataConfigSchema = z
+  .object({
+    target: z.string(),
+    source: z.string(),
+  })
+  .strict()
+export type SetDataConfig = z.infer<typeof setDataConfigSchema>
+
+export const conditionConfigSchema = z
+  .object({
+    expression: z.string(),
+  })
+  .strict()
+export type ConditionConfig = z.infer<typeof conditionConfigSchema>
+
+export const nodeConfigSchema = z.any()
+export type NodeConfig = z.infer<typeof nodeConfigSchema>
+
+export const flowNodeSchema = z
+  .object({
+    id: z.string().uuid(),
+    type: z.enum(flowNodeTypes),
+    label: z.string(),
+    position: z.object({ x: z.number(), y: z.number() }),
+    config: nodeConfigSchema,
+  })
+  .strict()
+export type FlowNode = z.infer<typeof flowNodeSchema>
+
+export const flowEdgeSchema = z
+  .object({
+    id: z.string().uuid(),
+    source: z.string().uuid().optional(),
+    target: z.string().uuid().optional(),
+    sourcePort: z.string().optional(),
+    targetPort: z.string().optional(),
+    sourcePoint: z.object({ x: z.number(), y: z.number() }).optional(),
+    targetPoint: z.object({ x: z.number(), y: z.number() }).optional(),
+    label: z.string().optional(),
+    arrow: z.enum(['forward', 'backward', 'both', 'none']).optional(),
+  })
+  .strict()
+export type FlowEdge = z.infer<typeof flowEdgeSchema>
+
+export const flowSchema = z
+  .object({
+    nodes: z.array(flowNodeSchema),
+    edges: z.array(flowEdgeSchema),
+  })
+  .strict()
+export type Flow = z.infer<typeof flowSchema>
+
+export const eventsSchema = z
+  .object({
+    tap: flowSchema.optional(),
+    load: flowSchema.optional(),
+  })
+  .strict()
+export type EventsSchema = z.infer<typeof eventsSchema>
+
 export interface ComponentNode {
   id: string
   type: ComponentType
   props: Record<string, unknown>
   style?: z.infer<typeof styleSchema>
   action?: ActionSchema
+  events?: EventsSchema
   children: ComponentNode[]
 }
 export const componentNodeSchema: z.ZodType<ComponentNode> = z.lazy(() =>
@@ -54,6 +186,7 @@ export const componentNodeSchema: z.ZodType<ComponentNode> = z.lazy(() =>
       props: z.record(z.string(), z.unknown()).default({}),
       style: styleSchema.optional(),
       action: actionSchema.optional(),
+      events: eventsSchema.optional(),
       children: z.array(componentNodeSchema).default([]),
     })
     .strict(),
@@ -96,8 +229,25 @@ const containers = new Set<ComponentType>([
   'Card',
   'Swiper',
   'Form',
+  'Tabs',
 ])
-const leaves = new Set<ComponentType>(['Text', 'Image', 'Button', 'Divider', 'Spacer', 'Input'])
+const leaves = new Set<ComponentType>([
+  'Text',
+  'Image',
+  'Button',
+  'Divider',
+  'Spacer',
+  'Input',
+  'Badge',
+  'Tag',
+  'FAB',
+  'AppHeader',
+  'PetCard',
+  'BottomNav',
+  'SearchBar',
+  'ProductCard',
+  'Countdown',
+])
 export function validateProject(input: unknown): ProjectSchema {
   const parsed = projectSchema.parse(input)
   const ids = new Map<string, string>()

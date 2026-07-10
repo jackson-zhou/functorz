@@ -1,6 +1,9 @@
 .DS_Store
+.env
 .env.local
 .env.*.local
+infra/secrets/
+*.key
 .taro
 coverage
 dist

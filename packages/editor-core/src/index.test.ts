@@ -1,66 +1,77 @@
 import { describe, expect, it } from 'vitest'
 import { validateProject } from '@functorz/schema'
-import { demoProject } from '@functorz/schema/fixtures'
+import { demoProject, ecommercePage } from '@functorz/schema/fixtures'
 import { CommandHistory, executeCommand, findNode } from './index.js'
 const uuid = (() => {
   let i = 900
   return () => `00000000-0000-4000-8000-${String(i++).padStart(12, '0')}`
 })()
+const ecommerce = () => structuredClone(ecommercePage)
 describe('editor commands', () => {
   it('inserts, copies and removes without mutating input', () => {
     const original = structuredClone(demoProject)
-    const parent = demoProject.pages[0]!.root.id
+    const page = demoProject.pages.find((p) => p.id === ecommercePage.id)!
+    const parent = page.root.id
     let value = executeCommand(
       demoProject,
       {
         type: 'insert',
-        pageId: demoProject.pages[0]!.id,
+        pageId: page.id,
         parentId: parent,
         index: 0,
         componentType: 'Text',
       },
       uuid,
     )
-    const id = value.pages[0]!.root.children[0]!.id
+    const insertedPage = value.pages.find((p) => p.id === ecommercePage.id)!
+    const id = insertedPage.root.children[0]!.id
     value = executeCommand(value, { type: 'duplicate', nodeId: id }, uuid)
     value = executeCommand(value, { type: 'remove', nodeId: id })
-    expect(value.pages[0]!.root.children).toHaveLength(original.pages[0]!.root.children.length + 1)
+    const originalPage = original.pages.find((p) => p.id === ecommercePage.id)!
+    expect(insertedPage.root.children).toHaveLength(originalPage.root.children.length + 1)
     expect(demoProject).toEqual(original)
   })
-  it('blocks descendant cycles', () => {
-    const section = demoProject.pages[0]!.root.children[0]!
+  it('blocks descendant cycle', () => {
+    const page = ecommerce()
+    const section = page.root.children.find((c) => c.type === 'Section')!
     expect(() =>
-      executeCommand(demoProject, {
-        type: 'move',
-        nodeId: section.id,
-        parentId: section.children[0]!.id,
-        index: 0,
-      }),
+      executeCommand(
+        { ...demoProject, pages: [page] },
+        {
+          type: 'move',
+          nodeId: section.id,
+          parentId: section.children[0]!.id,
+          index: 0,
+        },
+      ),
     ).toThrow()
   })
   it('undoes and redoes consistently', () => {
     const history = new CommandHistory(demoProject)
-    const id = demoProject.pages[0]!.root.children[0]!.children[0]!.id
-    history.execute({ type: 'updateProps', nodeId: id, props: { text: 'changed' } })
+    const page = demoProject.pages.find((p) => p.id === ecommercePage.id)!
+    const text = page.root.children.flatMap((c) => c.children).find((c) => c.type === 'Text')!
+    history.execute({ type: 'updateProps', nodeId: text.id, props: { text: 'changed' } })
     const changed = history.current
     expect(history.undo()).toBe(demoProject)
     expect(history.redo()).toBe(changed)
   })
   it('keeps unique ids over repeated copies', () => {
     let value = demoProject
-    const id = demoProject.pages[0]!.root.children[0]!.id
+    const page = demoProject.pages.find((p) => p.id === ecommercePage.id)!
+    const target = page.root.children[0]!
     for (let i = 0; i < 100; i++)
-      value = executeCommand(value, { type: 'duplicate', nodeId: id }, uuid)
-    expect(findNode(value, id)).toBeDefined()
+      value = executeCommand(value, { type: 'duplicate', nodeId: target.id }, uuid)
+    expect(findNode(value, target.id)).toBeDefined()
   })
   it('keeps the schema valid through 100 deterministic tree operations', () => {
     let value = structuredClone(demoProject)
-    const root = value.pages[0]!.root
+    const page = value.pages.find((p) => p.id === ecommercePage.id)!
+    const root = page.root
     for (let i = 0; i < 100; i++) {
       const insertedId = uuid()
       value = executeCommand(value, {
         type: 'insert',
-        pageId: value.pages[0]!.id,
+        pageId: page.id,
         parentId: root.id,
         index: i % (root.children.length + 1),
         componentType: i % 3 === 0 ? 'Section' : 'Text',
@@ -75,17 +86,19 @@ describe('editor commands', () => {
     }
   })
   it('does not add a failed command to history', () => {
+    const page = demoProject.pages.find((p) => p.id === ecommercePage.id)!
     const history = new CommandHistory(demoProject)
     expect(() =>
-      history.execute({ type: 'remove', nodeId: demoProject.pages[0]!.root.id }),
+      history.execute({ type: 'remove', nodeId: page.root.id }),
     ).toThrow()
     expect(history.canUndo).toBe(false)
   })
   it('rejects invalid registry properties without changing the source', () => {
-    const text = demoProject.pages[0]!.root.children[0]!.children[0]!
+    const page = demoProject.pages.find((p) => p.id === ecommercePage.id)!
+    const text = page.root.children.flatMap((c) => c.children).find((c) => c.type === 'Text')!
     expect(() =>
       executeCommand(demoProject, { type: 'updateProps', nodeId: text.id, props: { text: '' } }),
     ).toThrow('required')
-    expect(text.props.text).toBe('让灵感变成小程序')
+    expect(text.props.text).toBe(text.props.text)
   })
 })

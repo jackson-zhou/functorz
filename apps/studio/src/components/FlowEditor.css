@@ -1,0 +1,303 @@
+.flow-editor-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: white; /* 全屏时背景改为白色，移除半透明遮罩 */
+  display: flex;
+  align-items: stretch; /* 改为 stretch 以便子元素充满 */
+  justify-content: stretch;
+  z-index: 1000;
+}
+
+.flow-editor-modal {
+  background: white;
+  border-radius: 0; /* 移除圆角 */
+  width: 100vw;
+  height: 100vh;
+  max-width: none; /* 移除最大宽度限制 */
+  display: flex;
+  flex-direction: column;
+  box-shadow: none; /* 全屏时不需要阴影 */
+}
+
+.flow-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.flow-editor-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.close-btn:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.flow-editor-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.flow-node-palette {
+  width: 180px;
+  border-right: 1px solid #e8e8e8;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.flow-node-palette h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.palette-category {
+  margin-bottom: 20px;
+}
+
+.palette-category-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.palette-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #e8e8e8;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  cursor: grab;
+  background: white;
+  transition: all 0.2s;
+  font-size: 13px;
+  width: 100%;
+  text-align: left;
+  user-select: none;
+}
+
+.palette-item:hover {
+  border-color: #1890ff;
+  background: #e6f7ff;
+}
+
+.palette-item:active {
+  cursor: grabbing;
+}
+
+.palette-icon {
+  font-size: 16px;
+}
+
+.flow-canvas-container {
+  flex: 1;
+  position: relative;
+}
+
+.flow-canvas {
+  width: 100%;
+  height: 100%;
+  background: #fafafa;
+}
+
+.flow-property-panel {
+  width: 280px;
+  border-left: 1px solid #e8e8e8;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.flow-property-panel h4 {
+  margin: 0 0 16px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.property-empty {
+  color: #999;
+  font-size: 13px;
+  text-align: center;
+  padding: 40px 0;
+}
+
+.property-group {
+  margin-bottom: 16px;
+}
+
+.property-group label {
+  display: block;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.property-group input,
+.property-group select,
+.property-group textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.property-group input:focus,
+.property-group select:focus,
+.property-group textarea:focus {
+  outline: none;
+  border-color: #1890ff;
+}
+
+.property-group textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.flow-editor-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #e8e8e8;
+}
+
+.btn {
+  padding: 8px 20px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.btn-primary {
+  background: #1890ff;
+  color: white;
+  border-color: #1890ff;
+}
+
+.btn-primary:hover {
+  background: #40a9ff;
+}
+
+.btn-secondary {
+  background: white;
+  color: #666;
+  border-color: #d9d9d9;
+}
+
+.btn-secondary:hover {
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+.drag-preview-node {
+  position: absolute;
+  width: 120px;
+  height: 50px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  pointer-events: none;
+  opacity: 0.8;
+  z-index: 1000;
+}
+
+/* 连线选中样式 */
+.x6-edge-selected line,
+.x6-edge-selected path {
+  stroke: #1890ff !important;
+  stroke-width: 3 !important;
+}
+
+.x6-node-start rect,
+.x6-node-end rect {
+  fill: #52c41a;
+  stroke: #389e0d;
+  rx: 50%;
+  ry: 50%;
+}
+
+.x6-node-start text,
+.x6-node-end text {
+  fill: white;
+  font-size: 12px;
+}
+
+.x6-node-api rect {
+  fill: #1890ff;
+  stroke: #096dd9;
+  rx: 4px;
+  ry: 4px;
+}
+
+.x6-node-api text {
+  fill: white;
+  font-size: 12px;
+}
+
+.x6-node-alert rect {
+  fill: #faad14;
+  stroke: #d48806;
+  rx: 4px;
+  ry: 4px;
+}
+
+.x6-node-alert text {
+  fill: white;
+  font-size: 12px;
+}
+
+.x6-node-navigate rect {
+  fill: #13c2c2;
+  stroke: #08979c;
+  rx: 4px;
+  ry: 4px;
+}
+
+.x6-node-navigate text {
+  fill: white;
+  font-size: 12px;
+}
+
+/* 连线标签样式 */
+.x6-edge-label {
+  font-size: 12px;
+  fill: #666;
+  stroke: #fff;
+  stroke-width: 2;
+  paint-order: stroke;
+}

@@ -3,6 +3,22 @@ export interface CloudProject {
   version: number
   project: ProjectSchema
 }
+export type BuildStatus =
+  | 'queued'
+  | 'generating'
+  | 'building'
+  | 'uploading'
+  | 'success'
+  | 'failed'
+  | 'cancelled'
+export interface BuildJob {
+  id: string
+  projectId: string
+  status: BuildStatus
+  createdAt: string
+  qrCode?: string
+  error?: { stage: BuildStatus; message: string }
+}
 export class CloudClient {
   private token = sessionStorage.getItem('functorz-token') ?? ''
   constructor(private readonly baseUrl = import.meta.env.VITE_API_URL ?? '/api') {}
@@ -28,6 +44,12 @@ export class CloudClient {
       method: 'PUT',
       body: JSON.stringify({ version: current.version, project }),
     })
+  }
+  async createBuild(projectId: string): Promise<BuildJob> {
+    return this.request(`/projects/${projectId}/builds`, { method: 'POST' })
+  }
+  async getBuild(id: string): Promise<BuildJob> {
+    return this.request(`/builds/${id}`)
   }
   private async request<T>(
     path: string,

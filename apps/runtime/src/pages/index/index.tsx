@@ -4,9 +4,10 @@ import { SchemaRenderer } from '@functorz/runtime-renderer/dist'
 import { demoProject } from '@functorz/schema/fixtures-dist'
 import { validateProject, type ProjectSchema } from '@functorz/schema/dist'
 import './index.css'
+
 export default function Index() {
   const [project, setProject] = useState<ProjectSchema>(demoProject)
-  const [pageId, setPageId] = useState(demoProject.pages[0]!.id)
+  const [pageId, setPageId] = useState('00000000-0000-4000-8000-000000000104')
   const [previewError, setPreviewError] = useState('')
   useEffect(() => {
     if (typeof window === 'undefined') return

@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "id": "taobao-home-demo",
+  "name": "淘宝首页示例",
+  "theme": {
+    "primaryColor": "#ff4400",
+    "backgroundColor": "#f5f5f5",
+    "textColor": "#333333",
+    "radius": "md"
+  },
+  "pages": [
+    {
+      "id": "home-page",
+      "name": "首页",
+      "route": "/pages/home/index",
+      "root": {
+        "id": "root-container",
+        "type": "Page",
+        "props": {},
+        "children": [
+          {
+            "id": "data-provider",
+            "type": "DataProvider",
+            "props": {
+              "dataKey": "homeData",
+              "apis": "[\n  {\n    \"key\": \"kingkong\",\n    \"url\": \"https://api.example.com/home/kingkong\",\n    \"method\": \"GET\"\n  },\n  {\n    \"key\": \"activities\",\n    \"url\": \"https://api.example.com/home/activities\",\n    \"method\": \"GET\"\n  },\n  {\n    \"key\": \"products\",\n    \"url\": \"https://api.example.com/home/products\",\n    \"method\": \"GET\"\n  }\n]"
+            },
+            "children": [
+              {
+                "id": "search-bar",
+                "type": "SearchBar",
+                "props": {
+                  "placeholder": "千本樱",
+                  "showButton": true,
+                  "buttonText": "搜索"
+                },
+                "children": []
+              },
+              {
+                "id": "kingkong-list",
+                "type": "KingKongList",
+                "props": {
+                  "dataSource": "${homeData.kingkong.list}",
+                  "columns": 5,
+                  "iconSize": 44
+                },
+                "children": []
+              },
+              {
+                "id": "activity-row",
+                "type": "ActivityRow",
+                "props": {
+                  "dataSource": "${homeData.activities.list}"
+                },
+                "children": []
+              },
+              {
+                "id": "coupon-banner",
+                "type": "CouponBanner",
+                "props": {
+                  "title": "超级立减",
+                  "desc": "您有清凉季券限时可领",
+                  "amount": "¥80",
+                  "buttonText": "立即领取"
+                },
+                "children": []
+              },
+              {
+                "id": "product-grid",
+                "type": "ProductGrid",
+                "props": {
+                  "dataSource": "${homeData.products.list}",
+                  "columns": 2,
+                  "gap": "10px"
+                },
+                "children": []
+              },
+              {
+                "id": "bottom-nav",
+                "type": "BottomNav",
+                "props": {
+                  "items": "[\"首页\",\"\",\"购物车\",\"我的淘宝\"]",
+                  "activeIndex": 0
+                },
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
