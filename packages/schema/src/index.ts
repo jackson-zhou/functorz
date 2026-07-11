@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const SCHEMA_VERSION = 1 as const
+export const SCHEMA_VERSION = 2 as const
 export const componentTypes = [
   'Page',
   'Section',
@@ -24,6 +24,8 @@ export const componentTypes = [
   'BottomNav',
   'SearchBar',
   'ProductCard',
+  'KingKongList',
+  'ProductList',
   'Countdown',
 ] as const
 export type ComponentType = (typeof componentTypes)[number]
@@ -35,42 +37,18 @@ export const styleSchema = z
     fontSize: z.enum(['xs', 'sm', 'md', 'lg', 'xl']).optional(),
     spacing: z.enum(['none', 'xs', 'sm', 'md', 'lg', 'xl']).optional(),
     radius: z.enum(['none', 'sm', 'md', 'lg', 'pill']).optional(),
-    align: z.enum(['start', 'center', 'end', 'stretch']).optional(),
     gap: z.enum(['none', 'xs', 'sm', 'md', 'lg']).optional(),
     columns: z.number().int().min(1).max(4).optional(),
     width: z.number().int().min(0).max(2000).optional(),
     height: z.number().int().min(0).max(2000).optional(),
-    minHeight: z.number().int().min(0).max(4000).optional(),
     flex: z.number().min(0).max(20).optional(),
-    paddingTop: z.number().int().min(0).max(500).optional(),
-    paddingRight: z.number().int().min(0).max(500).optional(),
-    paddingBottom: z.number().int().min(0).max(500).optional(),
-    paddingLeft: z.number().int().min(0).max(500).optional(),
-    marginTop: z.number().int().min(-500).max(500).optional(),
-    marginRight: z.number().int().min(-500).max(500).optional(),
-    marginBottom: z.number().int().min(-500).max(500).optional(),
-    marginLeft: z.number().int().min(-500).max(500).optional(),
     borderWidth: z.number().int().min(0).max(20).optional(),
     borderColor: z.string().max(32).optional(),
-    position: z.enum(['relative', 'absolute', 'fixed']).optional(),
-    top: z.number().int().min(-2000).max(4000).optional(),
-    right: z.number().int().min(-2000).max(4000).optional(),
-    bottom: z.number().int().min(-2000).max(4000).optional(),
-    left: z.number().int().min(-2000).max(4000).optional(),
-    zIndex: z.number().int().min(-100).max(10000).optional(),
-    overflow: z.enum(['visible', 'hidden', 'auto']).optional(),
     fontWeight: z.enum(['normal', 'medium', 'semibold', 'bold']).optional(),
     textAlign: z.enum(['left', 'center', 'right']).optional(),
     objectFit: z.enum(['cover', 'contain', 'fill']).optional(),
   })
   .strict()
-
-export const actionSchema = z.discriminatedUnion('type', [
-  z.object({ type: z.literal('navigate'), pageId: z.string().uuid() }).strict(),
-  z.object({ type: z.literal('back') }).strict(),
-  z.object({ type: z.literal('submit'), formId: z.string().uuid() }).strict(),
-])
-export type ActionSchema = z.infer<typeof actionSchema>
 
 export const flowNodeTypes = [
   'start',
@@ -165,6 +143,8 @@ export const eventsSchema = z
   .object({
     tap: flowSchema.optional(),
     load: flowSchema.optional(),
+    show: flowSchema.optional(),
+    scroll: flowSchema.optional(),
   })
   .strict()
 export type EventsSchema = z.infer<typeof eventsSchema>
@@ -174,7 +154,6 @@ export interface ComponentNode {
   type: ComponentType
   props: Record<string, unknown>
   style?: z.infer<typeof styleSchema>
-  action?: ActionSchema
   events?: EventsSchema
   children: ComponentNode[]
 }
@@ -185,7 +164,6 @@ export const componentNodeSchema: z.ZodType<ComponentNode> = z.lazy(() =>
       type: z.enum(componentTypes),
       props: z.record(z.string(), z.unknown()).default({}),
       style: styleSchema.optional(),
-      action: actionSchema.optional(),
       events: eventsSchema.optional(),
       children: z.array(componentNodeSchema).default([]),
     })
@@ -246,6 +224,8 @@ const leaves = new Set<ComponentType>([
   'BottomNav',
   'SearchBar',
   'ProductCard',
+  'KingKongList',
+  'ProductList',
   'Countdown',
 ])
 export function validateProject(input: unknown): ProjectSchema {
@@ -307,9 +287,42 @@ export function migrateProject(input: unknown, migrations: Migration[] = []): Pr
   }
   return validateProject(current)
 }
+
+/** Strips fields removed between schema v1 and v2. */
+export const v1ToV2: Migration = {
+  from: 1,
+  to: 2,
+  migrate(input: unknown): unknown {
+    const project = structuredClone(input) as Record<string, unknown>
+    const removedStyleKeys = new Set([
+      'overflow', 'position', 'top', 'right', 'bottom', 'left', 'zIndex',
+      'minHeight', 'align',
+      'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
+      'marginTop', 'marginRight', 'marginBottom', 'marginLeft',
+    ])
+    function strip(node: Record<string, unknown>) {
+      delete node.action
+      if (node.style && typeof node.style === 'object') {
+        const style = node.style as Record<string, unknown>
+        for (const key of removedStyleKeys) delete style[key]
+      }
+      const children = node.children as Record<string, unknown>[] | undefined
+      if (children) children.forEach(strip)
+    }
+    const pages = project.pages as Record<string, unknown>[] | undefined
+    if (pages) {
+      for (const page of pages) {
+        const root = page.root as Record<string, unknown> | undefined
+        if (root) strip(root)
+      }
+    }
+    project.version = 2
+    return project
+  },
+}
 export function serializeProject(project: ProjectSchema): string {
-  return JSON.stringify(validateProject(project), null, 2)
+  return JSON.stringify(migrateProject(project, [v1ToV2]), null, 2)
 }
 export function deserializeProject(json: string): ProjectSchema {
-  return validateProject(JSON.parse(json))
+  return migrateProject(JSON.parse(json), [v1ToV2])
 }

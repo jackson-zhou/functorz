@@ -48,7 +48,6 @@ export type EditorCommand =
   | { type: 'reorder'; nodeId: string; direction: -1 | 1 }
   | { type: 'updateProps'; nodeId: string; props: Record<string, unknown> }
   | { type: 'updateStyle'; nodeId: string; style: ComponentNode['style'] }
-  | { type: 'updateAction'; nodeId: string; action: ComponentNode['action'] | undefined }
   | { type: 'updateEvents'; nodeId: string; events: EventsSchema | undefined }
   | { type: 'updateTheme'; theme: Partial<ProjectSchema['theme']> }
 
@@ -130,13 +129,6 @@ export function executeCommand(
       const node = findNode(project, command.nodeId)?.node
       if (!node) throw new Error('Node not found')
       node.style = command.style
-      break
-    }
-    case 'updateAction': {
-      const node = findNode(project, command.nodeId)?.node
-      if (!node) throw new Error('Node not found')
-      if (command.action) node.action = command.action
-      else delete node.action
       break
     }
     case 'updateEvents': {

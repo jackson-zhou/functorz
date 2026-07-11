@@ -18,6 +18,10 @@ export interface ComponentDefinition {
   accepts?: ComponentType[] | 'any'
   /** Kept for loading and migrating old projects, but hidden from new authoring flows. */
   deprecated?: boolean
+  /** Per-item field schema for list components (renders as inline form instead of JSON textarea). */
+  itemSchema?: PropertyField[]
+  /** Maximum number of placeholder items shown in the editor. */
+  maxItems?: number
 }
 const both = ['h5', 'weapp'] as const
 const def = (value: Omit<ComponentDefinition, 'platforms'>): ComponentDefinition => ({
@@ -190,6 +194,44 @@ export const componentRegistry: Record<ComponentType, ComponentDefinition> = {
         { key: 'sales', label: '已售数量', kind: 'text' },
       ],
     }),
+    KingKongList: def({
+      type: 'KingKongList',
+      label: '金刚位列表',
+      category: 'content',
+      container: false,
+      defaultProps: { dataSource: 'home.kingKong', columns: 5, items: '[]' },
+      properties: [
+        { key: 'dataSource', label: '数据源路径', kind: 'text', required: true },
+        { key: 'columns', label: '列数', kind: 'number' },
+        { key: 'items', label: '占位数据', kind: 'text' },
+      ],
+      itemSchema: [
+        { key: 'icon', label: '图标', kind: 'text' },
+        { key: 'label', label: '文字', kind: 'text' },
+        { key: 'color', label: '颜色', kind: 'color' },
+      ],
+      maxItems: 5,
+    }),
+    ProductList: def({
+      type: 'ProductList',
+      label: '商品列表',
+      category: 'content',
+      container: false,
+      defaultProps: { dataSource: 'home.products', columns: 2, items: '[]' },
+      properties: [
+        { key: 'dataSource', label: '数据源路径', kind: 'text', required: true },
+        { key: 'columns', label: '列数', kind: 'number' },
+        { key: 'items', label: '占位数据', kind: 'text' },
+      ],
+      itemSchema: [
+        { key: 'name', label: '商品名称', kind: 'text' },
+        { key: 'price', label: '售价', kind: 'text' },
+        { key: 'image', label: '图片地址', kind: 'url' },
+        { key: 'tag', label: '标签', kind: 'text' },
+        { key: 'sales', label: '销量', kind: 'text' },
+      ],
+      maxItems: 4,
+    }),
     Countdown: def({
       type: 'Countdown',
       label: '倒计时',
@@ -206,10 +248,12 @@ export const componentRegistry: Record<ComponentType, ComponentDefinition> = {
     label: '标签页',
     category: 'layout',
     container: true,
-    defaultProps: { activeIndex: 0, items: '全部,待出售,种公,种母' },
+    defaultProps: { activeIndex: 0, items: '全部,待出售,种公,种母', dataSource: '', variant: 'default' },
     properties: [
       { key: 'activeIndex', label: '默认激活索引', kind: 'number' },
-      { key: 'items', label: '标签项（逗号分隔）', kind: 'textarea', required: true },
+      { key: 'items', label: '标签项（逗号分隔）', kind: 'text', required: true },
+      { key: 'dataSource', label: '数据源路径', kind: 'text' },
+      { key: 'variant', label: '样式', kind: 'select', options: ['default', 'commerce'] },
     ],
     accepts: ['Section', 'Flex', 'Grid', 'Card'],
   }),
@@ -291,7 +335,7 @@ export const componentRegistry: Record<ComponentType, ComponentDefinition> = {
         activeIndex: 0,
       },
       properties: [
-        { key: 'items', label: '导航项（JSON 数组）', kind: 'textarea', required: true },
+        { key: 'items', label: '导航项（逗号分隔）', kind: 'text', required: true },
         { key: 'activeIndex', label: '默认激活索引', kind: 'number' },
       ],
     }),

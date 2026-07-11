@@ -164,8 +164,8 @@ export default function FlowPropertyPanel({ selectedNode, selectedEdge, onConfig
             </div>
             <div style={{ padding: '8px 0', fontSize: '12px', color: '#6b7280', lineHeight: '1.6' }}>
               <div>分支方向：</div>
-              <div>• 右 → 条件满足时执行</div>
-              <div>• 下 → 条件不满足时执行</div>
+              <div>• 下 → 条件满足时执行</div>
+              <div>• 右 → 条件不满足时执行</div>
             </div>
           </>
         )

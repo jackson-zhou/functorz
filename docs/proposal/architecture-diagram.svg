@@ -1,0 +1,218 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <defs>
+    <radialGradient id="bgGlow" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#232845"/>
+      <stop offset="100%" stop-color="#1a1f35"/>
+    </radialGradient>
+    <filter id="boxGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"/>
+      <feOffset dx="0" dy="1" result="offsetBlur"/>
+      <feFlood flood-color="#ffffff" flood-opacity="0.15" result="color"/>
+      <feComposite in="color" in2="offsetBlur" operator="in" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="lineGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <marker id="arrowDown" markerWidth="10" markerHeight="8" refX="5" refY="8" orient="auto">
+      <path d="M0,0 L5,8 L10,0" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+    </marker>
+    <marker id="arrowRPC" markerWidth="10" markerHeight="8" refX="5" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8" fill="none" stroke="#f472b6" stroke-width="1.5"/>
+    </marker>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bgGlow)"/>
+  <rect width="1600" height="900" fill="url(#grid)"/>
+
+  <!-- ============================================ -->
+  <!-- LAYER 1: 设计态 -->
+  <!-- ============================================ -->
+  <g id="layer1">
+    <rect x="40" y="55" width="1520" height="130" rx="12" fill="#5b5bd6" fill-opacity="0.08" stroke="#5b5bd6" stroke-opacity="0.25" stroke-width="1"/>
+    <text x="60" y="82" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="700" fill="#a78bfa" letter-spacing="1.5">设计态 · Studio（甲方运营 / 开发使用）</text>
+    <g filter="url(#boxGlow)">
+      <rect x="104" y="95" width="260" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#5b5bd6" stroke-width="1.5"/>
+      <text x="234" y="127" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">拖拉页面搭建器</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="388" y="95" width="260" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#5b5bd6" stroke-width="1.5"/>
+      <text x="518" y="127" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">图化流程编辑器</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="672" y="95" width="260" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#5b5bd6" stroke-width="1.5"/>
+      <text x="802" y="127" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">数据模型设计器</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="956" y="95" width="260" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#5b5bd6" stroke-width="1.5"/>
+      <text x="1086" y="127" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">主题 / 样式系统</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="1240" y="95" width="260" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#5b5bd6" stroke-width="1.5"/>
+      <text x="1370" y="127" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">模板市场 · 组件市场</text>
+    </g>
+  </g>
+
+  <g filter="url(#lineGlow)">
+    <line x1="800" y1="185" x2="800" y2="200" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- LAYER 2: 描述层 -->
+  <!-- ============================================ -->
+  <g id="layer2">
+    <rect x="40" y="205" width="1520" height="130" rx="12" fill="#f59e0b" fill-opacity="0.08" stroke="#f59e0b" stroke-opacity="0.25" stroke-width="1"/>
+    <text x="60" y="232" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="700" fill="#fbbf24" letter-spacing="1.5">描述层 · 声明式 Schema（平台的语言）</text>
+    <g filter="url(#boxGlow)">
+      <rect x="104" y="245" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="269" y="277" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">组件树 Schema</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="458" y="245" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="623" y="277" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">流程 Schema / BPMN</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="812" y="245" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="977" y="277" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">数据模型 Schema</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="1166" y="245" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="1331" y="277" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">表达式 · 绑定 AST</text>
+    </g>
+  </g>
+
+  <g filter="url(#lineGlow)">
+    <line x1="350" y1="335" x2="350" y2="350" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+    <line x1="800" y1="335" x2="800" y2="350" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+    <line x1="1250" y1="335" x2="1250" y2="350" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- LAYER 3: 运行态 -->
+  <!-- ============================================ -->
+  <g id="layer3">
+    <rect x="40" y="355" width="1520" height="200" rx="12" fill="#10b981" fill-opacity="0.08" stroke="#10b981" stroke-opacity="0.25" stroke-width="1"/>
+    <text x="60" y="382" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="700" fill="#34d399" letter-spacing="1.5">运行态 · 三大引擎</text>
+
+    <line x1="755" y1="370" x2="755" y2="540" stroke="#10b981" stroke-opacity="0.2" stroke-width="1" stroke-dasharray="4,4"/>
+
+    <text x="418" y="400" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="18" font-weight="600" fill="#6ee7b7" text-anchor="middle" letter-spacing="0.5">端上 · H5 + 微信小程序（Taro）</text>
+    <text x="1138" y="400" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="18" font-weight="600" fill="#6ee7b7" text-anchor="middle" letter-spacing="0.5">服务端</text>
+
+    <g filter="url(#boxGlow)">
+      <rect x="98" y="415" width="200" height="65" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#10b981" stroke-width="1.5"/>
+      <text x="198" y="438" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="20" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">① 界面布局引擎</text>
+      <text x="198" y="458" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="15" font-weight="400" fill="#64748b" text-anchor="middle" dominant-baseline="middle">渲染 · 数据绑定 · 列表</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="316" y="415" width="200" height="65" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#10b981" stroke-width="1.5"/>
+      <text x="416" y="438" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="20" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">② 图化执行引擎</text>
+      <text x="416" y="458" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="15" font-weight="400" fill="#64748b" text-anchor="middle" dominant-baseline="middle">流程解释器 · 本地算子</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="534" y="415" width="200" height="65" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#10b981" stroke-width="1.5"/>
+      <text x="634" y="438" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="20" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">状态存储</text>
+      <text x="634" y="458" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="15" font-weight="400" fill="#64748b" text-anchor="middle" dominant-baseline="middle">页面态 · 会话态</text>
+    </g>
+
+    <g filter="url(#boxGlow)">
+      <rect x="818" y="415" width="220" height="65" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#10b981" stroke-width="1.5"/>
+      <text x="928" y="438" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="20" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">② 图化执行引擎</text>
+      <text x="928" y="458" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="15" font-weight="400" fill="#64748b" text-anchor="middle" dominant-baseline="middle">Snurr / CompileFlow</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="1051" y="415" width="220" height="65" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#10b981" stroke-width="1.5"/>
+      <text x="1161" y="438" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="20" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">③ 服务引擎</text>
+      <text x="1161" y="458" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="15" font-weight="400" fill="#64748b" text-anchor="middle" dominant-baseline="middle">RPC 网关 · 重算子</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="1284" y="415" width="220" height="65" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#10b981" stroke-width="1.5"/>
+      <text x="1394" y="447" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="20" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">算子库</text>
+    </g>
+
+    <g filter="url(#lineGlow)">
+      <path d="M516,447 L760,447" stroke="#f472b6" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowRPC)" fill="none"/>
+      <path d="M734,430 L818,430" stroke="#f472b6" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowRPC)" fill="none"/>
+    </g>
+    <text x="640" y="440" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" font-weight="500" fill="#f472b6" text-anchor="middle">RPC 算子</text>
+    <text x="776" y="424" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="13" font-weight="500" fill="#f472b6" text-anchor="middle">RPC</text>
+  </g>
+
+  <g filter="url(#lineGlow)">
+    <line x1="350" y1="555" x2="350" y2="575" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+    <line x1="800" y1="555" x2="800" y2="575" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+    <line x1="1250" y1="555" x2="1250" y2="575" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- LAYER 4: 数据与集成 -->
+  <!-- ============================================ -->
+  <g id="layer4">
+    <rect x="40" y="580" width="1520" height="130" rx="12" fill="#06b6d4" fill-opacity="0.08" stroke="#06b6d4" stroke-opacity="0.25" stroke-width="1"/>
+    <text x="60" y="607" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="700" fill="#22d3ee" letter-spacing="1.5">数据与集成</text>
+    <g filter="url(#boxGlow)">
+      <rect x="104" y="620" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="269" y="652" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">RisingWave 数据存储</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="458" y="620" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="623" y="652" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">自动 CRUD API</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="812" y="620" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="977" y="652" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">微信 登录 / 支付 / 分享</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="1166" y="620" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="1331" y="652" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">HTTP 连接器 · 密钥管理</text>
+    </g>
+  </g>
+
+  <g filter="url(#lineGlow)">
+    <line x1="350" y1="710" x2="350" y2="725" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+    <line x1="800" y1="710" x2="800" y2="725" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+    <line x1="1250" y1="710" x2="1250" y2="725" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- LAYER 5: 平台底座 -->
+  <!-- ============================================ -->
+  <g id="layer5">
+    <rect x="40" y="730" width="1520" height="130" rx="12" fill="#6366f1" fill-opacity="0.08" stroke="#6366f1" stroke-opacity="0.25" stroke-width="1"/>
+    <text x="60" y="757" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="700" fill="#818cf8" letter-spacing="1.5">平台底座</text>
+    <g filter="url(#boxGlow)">
+      <rect x="104" y="770" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#6366f1" stroke-width="1.5"/>
+      <text x="269" y="802" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">账号 · 权限 · 多租户</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="458" y="770" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#6366f1" stroke-width="1.5"/>
+      <text x="623" y="802" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">发布 · 版本 · 回滚</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="812" y="770" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#6366f1" stroke-width="1.5"/>
+      <text x="977" y="802" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">流程调试器</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="1166" y="770" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#6366f1" stroke-width="1.5"/>
+      <text x="1331" y="802" font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="22" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">协作 · 审计</text>
+    </g>
+  </g>
+
+  <g font-family="PingFang SC,Microsoft YaHei,sans-serif" font-size="14" font-weight="500" fill="#475569" letter-spacing="1">
+    <text x="1600" y="120" text-anchor="end" transform="rotate(90, 1600, 120)">设计态</text>
+    <text x="1600" y="270" text-anchor="end" transform="rotate(90, 1600, 270)">描述层</text>
+    <text x="1600" y="455" text-anchor="end" transform="rotate(90, 1600, 455)">运行态</text>
+    <text x="1600" y="645" text-anchor="end" transform="rotate(90, 1600, 645)">数据层</text>
+    <text x="1600" y="795" text-anchor="end" transform="rotate(90, 1600, 795)">底座</text>
+  </g>
+</svg>

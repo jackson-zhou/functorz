@@ -7,6 +7,9 @@ import { validateProject } from '@functorz/schema'
 import { BuildJobStore, type BuildService } from './builds.js'
 import { MemoryProjectStore, StoreError, type ProjectStore } from './store.js'
 import { LocalAssetProvider, type AssetProvider } from './storage.js'
+function homeImage(label: string, color: string) {
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" rx="28" fill="${color}"/><rect x="72" y="92" width="256" height="188" rx="24" fill="white" fill-opacity=".82"/><path d="M105 242l65-70 48 46 39-34 43 58z" fill="${color}" fill-opacity=".65"/><circle cx="258" cy="145" r="24" fill="${color}" fill-opacity=".7"/><text x="200" y="332" text-anchor="middle" fill="white" font-size="28" font-family="Arial,sans-serif">${label}</text></svg>`)}`
+}
 interface Options {
   store?: ProjectStore
   builds?: BuildService
@@ -48,6 +51,25 @@ export function buildApp(options: Options = {}): FastifyInstance {
     })
   })
   app.get('/health', async () => ({ service: 'api', status: 'ok' }))
+  app.get('/home', async () => ({
+    code: 0,
+    data: {
+      tabs: ['关注', '推荐', '闪购', '国补', '飞猪', '立减'],
+      kingKong: [
+        { id: 'farm', icon: '树', label: '芭芭农场', color: '#16c875' },
+        { id: 'factory', icon: '淘', label: '淘工厂', color: '#ff5035' },
+        { id: 'coin', icon: '币', label: '领淘金币', color: '#ffbd22' },
+        { id: 'market', icon: '市', label: '天猫超市', color: '#47cc2e' },
+        { id: 'coupon', icon: '¥', label: '红包签到', color: '#f13b42' },
+      ],
+      products: [
+        { id: 'sport-1', name: '专业训练乒乓球拍套装', price: '1199', image: homeImage('运动好物', '#59788c'), tag: '天猫 立减10%', sales: '100+' },
+        { id: 'digital-1', name: '透明无线蓝牙耳机 超长续航', price: '108', image: homeImage('数码好物', '#668fa2'), tag: '天猫 券后价', sales: '6000+' },
+        { id: 'keyboard-1', name: '机械键盘 RGB背光青轴', price: '159', image: homeImage('电脑配件', '#674f84'), tag: '秒杀', sales: '2345' },
+        { id: 'power-1', name: '便携充电宝 20000mAh', price: '79', image: homeImage('出行必备', '#b25e42'), tag: '包邮', sales: '4567' },
+      ],
+    },
+  }))
   app.post('/auth/login', async (request) => {
     const body = request.body as { email?: string }
     if (!body.email) throw new ApiError('INVALID_CREDENTIALS', 400)

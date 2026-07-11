@@ -12,6 +12,16 @@ describe('api', () => {
     expect(r.statusCode).toBe(200)
     expect(r.headers['x-content-type-options']).toBe('nosniff')
   })
+  it('returns aggregate ecommerce home data without authentication', async () => {
+    const app = buildApp()
+    apps.push(app)
+    const response = await app.inject({ method: 'GET', url: '/home' })
+    expect(response.statusCode).toBe(200)
+    const body = response.json()
+    expect(body.code).toBe(0)
+    expect(body.data.kingKong).toHaveLength(5)
+    expect(body.data.products).toHaveLength(4)
+  })
   it('enforces auth, ownership and optimistic locking', async () => {
     const app = buildApp()
     apps.push(app)

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Functorz Studio — 页面组件与事件绑定指南</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<style>
+  :root { --primary:#1a1a2e; --accent:#0f3460; --highlight:#e94560; --bg:#f5f7fa; --card:#fff; --text:#1a1a2e; --muted:#6b7280; --border:#e5e7eb; --green:#52c41a; --blue:#1890ff; --orange:#faad14; --purple:#722ed1; --teal:#13c2c2; --red:#ff4d4f; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--text); line-height:1.65; padding:0; }
+
+  .cover { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; background:linear-gradient(135deg,var(--primary),var(--accent)); color:#fff; text-align:center; padding:40px; page-break-after:always; }
+  .cover .logo { width:90px; height:90px; background:var(--highlight); border-radius:22px; display:flex; align-items:center; justify-content:center; font-size:50px; font-weight:bold; margin-bottom:24px; box-shadow:0 12px 40px rgba(233,69,96,.4); }
+  .cover h1 { font-size:42px; font-weight:800; margin-bottom:12px; }
+  .cover .sub { font-size:18px; opacity:.85; margin-bottom:30px; }
+  .cover .pages { background:rgba(255,255,255,.1); border-radius:14px; padding:20px 36px; font-size:14px; line-height:1.9; }
+  .cover .pages b { color:var(--highlight); }
+  .cover .date { margin-top:20px; font-size:13px; opacity:.6; }
+
+  .content { padding:40px 60px; max-width:1100px; margin:0 auto; }
+
+  h2 { font-size:26px; font-weight:700; margin:44px 0 18px; padding-bottom:8px; border-bottom:3px solid var(--highlight); display:flex; align-items:center; gap:10px; page-break-before:always; }
+  h2:first-of-type { page-break-before:auto; }
+  h2 .num { background:var(--highlight); color:#fff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:14px; }
+  h3 { font-size:19px; margin:24px 0 10px; color:var(--accent); }
+  h4 { font-size:15px; margin:16px 0 6px; color:var(--muted); }
+
+  table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; background:var(--card); border-radius:10px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,.06); }
+  th { background:var(--primary); color:#fff; padding:9px 12px; text-align:left; font-weight:600; }
+  td { padding:8px 12px; border-bottom:1px solid var(--border); }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:#fafafa; }
+
+  code { background:#f0f0f0; padding:1px 5px; border-radius:4px; font-size:12px; font-family:'SF Mono','Fira Code',monospace; }
+
+  .mermaid { background:var(--card); border-radius:14px; padding:16px; margin:16px 0; text-align:center; box-shadow:0 2px 12px rgba(0,0,0,.06); page-break-inside:avoid; }
+
+  .tag { display:inline-block; padding:2px 8px; border-radius:16px; font-size:11px; font-weight:600; margin-right:4px; }
+  .tag-green { background:#f6ffed; color:var(--green); }
+  .tag-blue { background:#e6f7ff; color:var(--blue); }
+  .tag-orange { background:#fffbe6; color:var(--orange); }
+  .tag-purple { background:#f9f0ff; color:var(--purple); }
+  .tag-red { background:#fff2f0; color:var(--red); }
+  .tag-teal { background:#e6fffb; color:var(--teal); }
+
+  .stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:16px 0; }
+  .stat { background:var(--card); border-radius:10px; padding:16px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,.04); }
+  .stat .n { font-size:28px; font-weight:800; color:var(--highlight); }
+  .stat .l { font-size:12px; color:var(--muted); margin-top:2px; }
+
+  .section-note { background:#fffbe6; border-left:4px solid var(--orange); padding:10px 14px; margin:12px 0; border-radius:0 6px 6px 0; font-size:13px; }
+
+  ul.clean { list-style:none; }
+  ul.clean li { padding:4px 0; }
+  ul.clean li::before { content:"▸ "; color:var(--highlight); font-weight:bold; }
+
+  .footer { text-align:center; padding:30px; color:var(--muted); font-size:12px; border-top:1px solid var(--border); margin-top:50px; }
+
+  .tree { font-family:'SF Mono','Fira Code',monospace; font-size:12px; line-height:1.55; }
+  .tree .ev { color:var(--purple); font-weight:bold; }
+  .tree .cmp { color:var(--blue); }
+  .tree .stp { color:var(--green); }
+
+  @media print { body{padding:0} .content{padding:20px 30px} h2{page-break-before:always} .cover{page-break-after:always} }
+</style>
+</head>
+<body>
+
+<!-- ==================== COVER ==================== -->
+<div class="cover">
+  <div class="logo">F</div>
+  <h1>页面组件与事件绑定指南</h1>
+  <p class="sub">Functorz Studio 低代码编辑器 · 页面结构分析</p>
+  <div class="pages">
+    <b>登录页</b> &nbsp;/pages/login<br>
+    <b>电商首页</b> &nbsp;/pages/home
+  </div>
+  <div class="date">生成日期 2026-07-12 · 数据来源: packages/schema/src/fixtures.ts</div>
+</div>
+
+<!-- ==================== CONTENT ==================== -->
+<div class="content">
+
+  <!-- ==================== 1. 概览 ==================== -->
+  <h2><span class="num">1</span> 概览</h2>
+  <div class="stat-grid">
+    <div class="stat"><div class="n">2</div><div class="l">分析页面</div></div>
+    <div class="stat"><div class="n">6</div><div class="l">事件流程数</div></div>
+    <div class="stat"><div class="n">6</div><div class="l">事件绑定组件</div></div>
+    <div class="stat"><div class="n">20+</div><div class="l">总组件实例</div></div>
+  </div>
+
+  <!-- ==================== 2. 登录页 ==================== -->
+  <h2><span class="num">2</span> 登录页 /pages/login</h2>
+
+  <h3>2.1 组件树结构</h3>
+  <p style="margin-bottom:8px;">登录页以 <code>Page</code> 为根节点，整体为 <code>Flex</code> 垂直居中布局：</p>
+
+  <div class="tree">
+<span class="indent"></span><span class="cmp">Page</span> (root)
+<span class="indent"></span><span class="indent"></span><span class="cmp">Flex</span> (column · center · spacing:xl · gap:sm)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="stp">Spacer</span> (xl)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="cmp">Image</span> (logo 80x80)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="stp">Spacer</span> (md)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="cmp">Text</span> "欢迎回来" (lg · bold · center)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="stp">Spacer</span> (sm)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="cmp">Text</span> "请输入账号信息登录" (sm · #85869a)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="stp">Spacer</span> (xl)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="cmp">Form</span> (含 3 个子节点)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="cmp">Input</span> name=phone "手机号" (inputType:tel · required)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="cmp">Input</span> name=password "密码" (inputType:password · required)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="cmp">Button</span> "登录" (primary) -> <span class="ev">tap: loginFlow</span>
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="stp">Spacer</span> (md)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="cmp">Flex</span> (row · space-between · gap:md)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="cmp">Text</span> " forgotten密码?" (#6d5dfc) -> <span class="ev">tap: forgotPasswordFlow</span>
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="cmp">Text</span> "注册账号" (#6d5dfc) -> <span class="ev">tap: registerFlow</span>
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="stp">Spacer</span> (lg)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="cmp">Divider</span>
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="stp">Spacer</span> (md)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="cmp">Text</span> "其他登录方式" (sm · #85869a)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="stp">Spacer</span> (sm)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="cmp">Flex</span> (row · center · gap:md)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="cmp">Button</span> "微信登录" (text)
+<span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="indent"></span><span class="cmp">Button</span> "短信验证" (text)
+  </div>
+
+  <h3>2.2 组件类型清单</h3>
+  <table>
+    <tr><th>类型</th><th>数量</th><th>说明</th></tr>
+    <tr><td>Page</td><td>1</td><td>页面根节点</td></tr>
+    <tr><td>Flex</td><td>3</td><td>主布局 + 底部链接行 + 第三方登录行</td></tr>
+    <tr><td>Spacer</td><td>6</td><td>弹性间距填充</td></tr>
+    <tr><td>Image</td><td>1</td><td>Logo</td></tr>
+    <tr><td>Text</td><td>5</td><td>标题、说明文字、链接文字、分隔标题</td></tr>
+    <tr><td>Form</td><td>1</td><td>登录表单容器</td></tr>
+    <tr><td>Input</td><td>2</td><td>手机号 + 密码</td></tr>
+    <tr><td>Button</td><td>3</td><td>登录 + 微信登录 + 短信验证</td></tr>
+    <tr><td>Divider</td><td>1</td><td>分隔线</td></tr>
+  </table>
+
+  <h3>2.3 事件绑定</h3>
+  <table>
+    <tr><th>组件</th><th>事件</th><th>绑定流程</th><th>说明</th></tr>
+    <tr><td>Button "登录"</td><td><code>tap</code></td><td><code>loginFlow</code></td><td>完整登录流程：API -> 条件 -> 跳转/报错</td></tr>
+    <tr><td>Text " forgotten密码?"</td><td><code>tap</code></td><td><code>forgotPasswordFlow</code></td><td>跳转到忘记密码页</td></tr>
+    <tr><td>Text "注册账号"</td><td><code>tap</code></td><td><code>registerFlow</code></td><td>跳转到注册页</td></tr>
+  </table>
+
+  <h3>2.4 登录页页面布局图</h3>
+  <div class="mermaid">
+    <pre class="mermaid">
+graph TB
+    subgraph Login["登录页 /pages/login"]
+        subgraph Layout["Flex 垂直布局 (center)"]
+            S1["Spacer (xl)"]
+            IMG["Image (Logo 80x80)"]
+            S2["Spacer (md)"]
+            T1["Text 欢迎回来 (bold)"]
+            S3["Spacer (sm)"]
+            T2["Text 请输入账号信息登录"]
+            S4["Spacer (xl)"]
+            FORM["Form (表单容器)"]
+            F_P["Input 手机号 (tel)"]
+            F_K["Input 密码 (password)"]
+            F_B["Button 登录 (primary)<br/>tap: loginFlow"]
+            S5["Spacer (md)"]
+            LINKS["Flex 行布局 (space-between)"]
+            T3["Text 忘记密码?<br/>tap: forgotPasswordFlow"]
+            T4["Text 注册账号<br/>tap: registerFlow"]
+            S6["Spacer (lg)"]
+            DIV["Divider 分隔线"]
+            S7["Spacer (md)"]
+            T5["Text 其他登录方式"]
+            S8["Spacer (sm)"]
+            AUTH["Flex 行布局 (center)"]
+            B1["Button 微信登录 (text)"]
+            B2["Button 短信验证 (text)"]
+        end
+    end
+
+    FORM --> F_P
+    FORM --> F_K
+    FORM --> F_B
+    LINKS --> T3
+    LINKS --> T4
+    AUTH --> B1
+    AUTH --> B2
+
+    classDef evt fill:#f9f0ff,stroke:#722ed1,color:#333
+    classDef cmp fill:#e6f7ff,stroke:#1890ff,color:#333
+    classDef spc fill:#f6ffed,stroke:#52c41a,color:#333
+    classDef div fill:#f0f0f0,stroke:#999,color:#333
+    class F_B,T3,T4 evt
+    class IMG,T1,T2,T5,F_P,F_K,B1,B2 cmp
+    class S1,S2,S3,S4,S5,S6,S7,S8,FORM spc
+    class DIV div
+    </pre>
+  </div>
+
+  <!-- ==================== 3. 电商首页 ==================== -->
+  <h2><span class="num">3</span> 电商首页 /pages/home</h2>
+
+  <h3>3.1 组件树结构</h3>
+  <p style="margin-bottom:8px;">电商首页直接以 <code>Page</code> 为根，背景色 <code>#f4f4f4</code>，页面绑定 <code>load</code> 事件：</p>
+
+  <div class="tree">
+<span class="cmp">Page</span> (root · bg:#f4f4f4) -> <span class="ev">load: pageLoadFlow</span>
+<span class="indent"></span><span class="cmp">Tabs</span> (关注/推荐/闪购/国补/飞猪/立减 · activeIndex:1 · commerce)
+<span class="indent"></span><span class="cmp">Section</span> (搜索区)
+<span class="indent"></span><span class="indent"></span><span class="cmp">SearchBar</span> (千本樱 · showButton) -> <span class="ev">tap: searchFlow</span>
+<span class="indent"></span><span class="cmp">Section</span> (金刚位区 · bg:#fff)
+<span class="indent"></span><span class="indent"></span><span class="cmp">KingKongList</span> (5列 · 芭芭农场/淘工厂/领淘金币/天猫超市/红包签到)
+<span class="indent"></span><span class="cmp">Grid</span> (3列 · 活动卡片)
+<span class="indent"></span><span class="indent"></span><span class="cmp">Flex</span> x 3 (淘宝直播/百亿补贴/淘宝秒杀 各含 Textx2 + Image)
+<span class="indent"></span><span class="cmp">Flex</span> (优惠券横幅 · bg:#ff2c16)
+<span class="indent"></span><span class="indent"></span><span class="cmp">Flex</span> (左: 超级立减 清凉券限时领)
+<span class="indent"></span><span class="indent"></span><span class="cmp">Flex</span> (右: 80 立即领取 · bg:#fff)
+<span class="indent"></span><span class="ev">tap: bannerFlow</span>
+<span class="indent"></span><span class="cmp">Flex</span> (猜你喜欢标题行)
+<span class="indent"></span><span class="indent"></span><span class="cmp">Text</span> "猜你喜欢" (bold)
+<span class="indent"></span><span class="indent"></span><span class="cmp">Text</span> "发现今日好物"
+<span class="indent"></span><span class="cmp">ProductList</span> (2列 · 4个商品)
+<span class="indent"></span><span class="ev">scroll: loadMoreFlow</span>
+<span class="indent"></span><span class="cmp">BottomNav</span> (首页/逛逛/消息/购物车/我的淘宝 · activeIndex:0)
+<span class="indent"></span><span class="ev">tap: navFlow</span>
+<span class="indent"></span><span class="cmp">Spacer</span> (xl · 底部占位 80px)
+  </div>
+
+  <h3>3.2 组件类型清单</h3>
+  <table>
+    <tr><th>类型</th><th>数量</th><th>说明</th></tr>
+    <tr><td>Page</td><td>1</td><td>页面根节点 · bg:#f4f4f4</td></tr>
+    <tr><td>Tabs</td><td>1</td><td>顶部导航标签</td></tr>
+    <tr><td>Section</td><td>2</td><td>搜索区 + 金刚位区</td></tr>
+    <tr><td>SearchBar</td><td>1</td><td>搜索栏</td></tr>
+    <tr><td>KingKongList</td><td>1</td><td>金刚位入口（5列）</td></tr>
+    <tr><td>Grid</td><td>1</td><td>活动卡片（3列）</td></tr>
+    <tr><td>Flex</td><td>6</td><td>活动卡片 x3 + 横幅 x2 + 标题行</td></tr>
+    <tr><td>Text</td><td>14</td><td>活动卡片标题/副标题/价格 + 横幅文字 + 猜你喜欢</td></tr>
+    <tr><td>Image</td><td>3</td><td>活动卡片图片</td></tr>
+    <tr><td>ProductList</td><td>1</td><td>商品网格列表（2列）</td></tr>
+    <tr><td>BottomNav</td><td>1</td><td>底部导航</td></tr>
+    <tr><td>Spacer</td><td>1</td><td>底部占位</td></tr>
+  </table>
+
+  <h3>3.3 事件绑定</h3>
+  <table>
+    <tr><th>组件</th><th>事件</th><th>绑定流程</th><th>说明</th></tr>
+    <tr><td>Page (根)</td><td><code>load</code></td><td><code>pageLoadFlow</code></td><td>首页加载：3组 API -> 条件 -> setData -> 结束</td></tr>
+    <tr><td>SearchBar</td><td><code>tap</code></td><td><code>searchFlow</code></td><td>搜索栏点击：条件校验关键词 -> 跳转/提示</td></tr>
+    <tr><td>优惠券横幅 (Flex)</td><td><code>tap</code></td><td><code>bannerFlow</code></td><td>Banner 轮播点击：跳转到活动详情页</td></tr>
+    <tr><td>ProductList</td><td><code>scroll</code></td><td><code>loadMoreFlow</code></td><td>商品列表滚动加载：滚动到 2/3 时请求第 2 页</td></tr>
+    <tr><td>BottomNav</td><td><code>tap</code></td><td><code>navFlow</code></td><td>底部导航切换：判断是否登录 -> 对应页面/登录页</td></tr>
+  </table>
+
+  <h3>3.4 电商首页页面布局图</h3>
+  <div class="mermaid">
+    <pre class="mermaid">
+graph TB
+    subgraph Home["电商首页 /pages/home"]
+        subgraph Body["Page 内容区 (bg:#f4f4f4)"]
+            TABS["Tabs 导航 (关注/推荐/闪购/国补/飞猪/立减)"]
+            SEC1["Section 搜索区"]
+            SB["SearchBar 千本樱<br/>tap: searchFlow"]
+            SEC2["Section 金刚位 (bg:#fff)"]
+            KK["KingKongList 5列<br/>芭芭农场/淘工厂/领淘金币/天猫超市/红包签到"]
+            GRID["Grid 活动卡片 (3列)"]
+            G1["淘宝直播"]
+            G2["百亿补贴 299"]
+            G3["淘宝秒杀 5.88"]
+            BANNER["Flex 优惠券横幅 (bg:#ff2c16)<br/>超级立减 清凉券限时领 + 80 立即领取<br/>tap: bannerFlow"]
+            TITLE["Flex 猜你喜欢标题"]
+            PLIST["ProductList 商品网格 (2列)<br/>scroll: loadMoreFlow"]
+            BNAV["BottomNav 底部导航<br/>首页/逛逛/消息/购物车/我的淘宝<br/>tap: navFlow"]
+            FOOT["Spacer 底部占位 (80px)"]
+        end
+    end
+
+    SEC1 --> SB
+    SEC2 --> KK
+    GRID --> G1
+    GRID --> G2
+    GRID --> G3
+
+    classDef evt fill:#f9f0ff,stroke:#722ed1,color:#333
+    classDef cmp fill:#e6f7ff,stroke:#1890ff,color:#333
+    classDef grid fill:#f6ffed,stroke:#52c41a,color:#333
+    class SB,BANNER,PLIST,BNAV evt
+    class TABS,SEC1,SEC2,KK,GRID,BANNER,TITLE,PLIST,BNAV,FOOT cmp
+    class G1,G2,G3 grid
+    </pre>
+  </div>
+
+  <!-- ==================== 4. 登录页事件流程 ==================== -->
+  <h2><span class="num">4</span> 登录页事件流程详解</h2>
+
+  <h3>4.1 loginFlow - 登录按钮点击（完整流程）</h3>
+  <div class="mermaid">
+    <pre class="mermaid">
+flowchart TD
+    START["开始"]
+    API["API: /api/login<br/>method: POST<br/>body: phone + password"]
+    COND{"登录成功?<br/>response.code == 0<br/>&& msg contains 成功"}
+    NAV["跳转首页<br/>pageId: ecommerce"]
+    ALERT["登录失败<br/>type: error<br/>msg: 账号或密码错误"]
+    END1["结束"]
+    END2["结束"]
+
+    START -->|开始| API
+    API -->|POST| COND
+    COND -->|是| NAV
+    COND -->|否| ALERT
+    NAV -->|跳转完成| END1
+    ALERT -->|提示结束| END2
+
+    classDef green fill:#f6ffed,stroke:#52c41a,color:#333
+    classDef blue fill:#e6f7ff,stroke:#1890ff,color:#333
+    classDef purple fill:#f9f0ff,stroke:#722ed1,color:#333
+    classDef teal fill:#e6fffb,stroke:#13c2c2,color:#333
+    classDef red fill:#fff2f0,stroke:#ff4d4f,color:#333
+    class START,END1,END2 green
+    class API blue
+    class COND purple
+    class NAV teal
+    class ALERT red
+    </pre>
+  </div>
+
+  <h3>4.2 forgotPasswordFlow - 忘记密码</h3>
+  <div class="mermaid">
+    <pre class="mermaid">
+flowchart LR
+    START["开始"]
+    NAV["跳转到忘记密码页"]
+    END["结束"]
+    START --> NAV
+    NAV --> END
+    </pre>
+  </div>
+
+  <h3>4.3 registerFlow - 注册账号</h3>
+  <div class="mermaid">
+    <pre class="mermaid">
+flowchart LR
+    START["开始"]
+    NAV["跳转到注册页"]
+    END["结束"]
+    START --> NAV
+    NAV --> END
+    </pre>
+  </div>
+
+  <!-- ==================== 5. 电商首页事件流程 ==================== -->
+  <h2><span class="num">5</span> 电商首页事件流程详解</h2>
+
+  <h3>5.1 pageLoadFlow - 首页加载（页面级 load 事件）</h3>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:8px;">进入页面时触发，依次请求导航栏、金刚位、商品列表三个接口：</p>
+  <div class="mermaid">
+    <pre class="mermaid">
+flowchart TD
+    START["进入页面"]
+
+    T_API["获取导航栏<br/>GET /api/home/tabs"]
+    T_COND{"请求成功?"}
+    T_SET["更新导航栏<br/>target: home.tabs<br/>source: response.data"]
+    T_ERR["使用默认导航"]
+
+    K_API["获取金刚位<br/>GET /api/home/kingkong"]
+    K_COND{"请求成功?"}
+    K_SET["更新金刚位<br/>target: home.kingKong<br/>source: response.data"]
+    K_ERR["使用默认金刚位"]
+
+    P_API["获取商品列表<br/>GET /api/home/products"]
+    P_COND{"请求成功?"}
+    P_SET["更新商品列表<br/>target: home.products<br/>source: response.data"]
+    P_ERR["使用默认商品"]
+
+    END["完成"]
+
+    START --> T_API
+    T_API --> T_COND
+    T_COND -->|yes| T_SET
+    T_COND -->|no| T_ERR
+    T_SET --> K_API
+    T_ERR --> K_API
+    K_API --> K_COND
+    K_COND -->|yes| K_SET
+    K_COND -->|no| K_ERR
+    K_SET --> P_API
+    K_ERR --> P_API
+    P_API --> P_COND
+    P_COND -->|yes| P_SET
+    P_COND -->|no| P_ERR
+    P_SET --> END
+    P_ERR --> END
+
+    classDef green fill:#f6ffed,stroke:#52c41a,color:#333
+    classDef blue fill:#e6f7ff,stroke:#1890ff,color:#333
+    classDef purple fill:#f9f0ff,stroke:#722ed1,color:#333
+    classDef teal fill:#e6fffb,stroke:#13c2c2,color:#333
+    classDef red fill:#fff2f0,stroke:#ff4d4f,color:#333
+    class START,END green
+    class T_API,K_API,P_API blue
+    class T_COND,K_COND,P_COND purple
+    class T_SET,K_SET,P_SET teal
+    class T_ERR,K_ERR,P_ERR red
+    </pre>
+  </div>
+
+  <h3>5.2 searchFlow - 搜索栏点击</h3>
+  <div class="mermaid">
+    <pre class="mermaid">
+flowchart TD
+    START["开始"]
+    COND{"关键词非空?<br/>keyword != ''"}
+    NAV["跳转到搜索结果"]
+    ALERT["请输入关键词"]
+    END1["结束"]
+    END2["结束"]
+    START --> COND
+    COND -->|是| NAV
+    COND -->|否| ALERT
+    NAV --> END1
+    ALERT --> END2
+
+    classDef green fill:#f6ffed,stroke:#52c41a,color:#333
+    classDef blue fill:#e6f7ff,stroke:#1890ff,color:#333
+    classDef purple fill:#f9f0ff,stroke:#722ed1,color:#333
+    classDef red fill:#fff2f0,stroke:#ff4d4f,color:#333
+    class START,END1,END2 green
+    class COND purple
+    class NAV blue
+    class ALERT red
+    </pre>
+  </div>
+
+  <h3>5.3 bannerFlow - 优惠券横幅点击</h3>
+  <div class="mermaid">
+    <pre class="mermaid">
+flowchart LR
+    START["开始"]
+    NAV["跳转到活动详情页"]
+    END["结束"]
+    START --> NAV
+    NAV --> END
+    </pre>
+  </div>
+
+  <h3>5.4 loadMoreFlow - 商品列表滚动加载</h3>
+  <div class="mermaid">
+    <pre class="mermaid">
+flowchart TD
+    START["滚动到 2/3"]
+    API["请求第2页<br/>GET /api/home/products?page=2"]
+    COND{"请求成功?"}
+    SET["追加商品<br/>target: home.products<br/>source: response.data"]
+    ALERT["没有更多商品了"]
+    END1["结束"]
+    END2["结束"]
+    START --> API
+    API --> COND
+    COND -->|是| SET
+    COND -->|否| ALERT
+    SET --> END1
+    ALERT --> END2
+
+    classDef green fill:#f6ffed,stroke:#52c41a,color:#333
+    classDef blue fill:#e6f7ff,stroke:#1890ff,color:#333
+    classDef purple fill:#f9f0ff,stroke:#722ed1,color:#333
+    classDef teal fill:#e6fffb,stroke:#13c2c2,color:#333
+    classDef red fill:#fff2f0,stroke:#ff4d4f,color:#333
+    class START,END1,END2 green
+    class API blue
+    class COND purple
+    class SET teal
+    class ALERT red
+    </pre>
+  </div>
+
+  <h3>5.5 navFlow - 底部导航切换</h3>
+  <div class="mermaid">
+    <pre class="mermaid">
+flowchart TD
+    START["开始"]
+    COND{"已登录?<br/>isLogin == true"}
+    NAV1["跳转到对应页面"]
+    NAV2["跳转到登录页"]
+    END1["结束"]
+    END2["结束"]
+    START --> COND
+    COND -->|是| NAV1
+    COND -->|否| NAV2
+    NAV1 --> END1
+    NAV2 --> END2
+
+    classDef green fill:#f6ffed,stroke:#52c41a,color:#333
+    classDef purple fill:#f9f0ff,stroke:#722ed1,color:#333
+    classDef teal fill:#e6fffb,stroke:#13c2c2,color:#333
+    class START,END1,END2 green
+    class COND purple
+    class NAV1,NAV2 teal
+    </pre>
+  </div>
+
+  <!-- ==================== 6. 汇总对照表 ==================== -->
+  <h2><span class="num">6</span> 事件绑定汇总对照</h2>
+
+  <h3>6.1 登录页事件总览</h3>
+  <table>
+    <tr><th>绑定组件</th><th>事件类型</th><th>流程名称</th><th>流程节点数</th><th>流程类型</th></tr>
+    <tr><td>Button "登录"</td><td>tap</td><td>loginFlow</td><td>7</td><td><span class="tag tag-blue">API + 条件 + 跳转/报错</span></td></tr>
+    <tr><td>Text "忘记密码?"</td><td>tap</td><td>forgotPasswordFlow</td><td>3</td><td><span class="tag tag-green">简单跳转</span></td></tr>
+    <tr><td>Text "注册账号"</td><td>tap</td><td>registerFlow</td><td>3</td><td><span class="tag tag-green">简单跳转</span></td></tr>
+  </table>
+
+  <h3>6.2 电商首页事件总览</h3>
+  <table>
+    <tr><th>绑定组件</th><th>事件类型</th><th>流程名称</th><th>流程节点数</th><th>流程类型</th></tr>
+    <tr><td>Page (根)</td><td>load</td><td>pageLoadFlow</td><td>16</td><td><span class="tag tag-orange">3组 API - 条件 - setData</span></td></tr>
+    <tr><td>SearchBar</td><td>tap</td><td>searchFlow</td><td>6</td><td><span class="tag tag-purple">条件校验 - 跳转/提示</span></td></tr>
+    <tr><td>优惠券横幅 (Flex)</td><td>tap</td><td>bannerFlow</td><td>3</td><td><span class="tag tag-green">简单跳转</span></td></tr>
+    <tr><td>ProductList</td><td>scroll</td><td>loadMoreFlow</td><td>7</td><td><span class="tag tag-blue">API - 条件 - setData</span></td></tr>
+    <tr><td>BottomNav</td><td>tap</td><td>navFlow</td><td>6</td><td><span class="tag tag-purple">条件校验 - 跳转</span></td></tr>
+  </table>
+
+  <h3>6.3 两页事件对比</h3>
+  <div class="mermaid">
+    <pre class="mermaid">
+pie title 两页事件绑定分布
+    "登录页 tap 事件" : 3
+    "电商首页 load 事件" : 1
+    "电商首页 tap 事件" : 3
+    "电商首页 scroll 事件" : 1
+    </pre>
+  </div>
+
+  <!-- ==================== 7. 组件类型说明 ==================== -->
+  <h2><span class="num">7</span> 页面中出现的组件类型说明</h2>
+  <table>
+    <tr><th>组件</th><th>类别</th><th>登录页</th><th>电商首页</th><th>用途</th></tr>
+    <tr><td>Page</td><td>容器</td><td>Y</td><td>Y</td><td>页面根节点</td></tr>
+    <tr><td>Flex</td><td>容器</td><td>Y x3</td><td>Y x6</td><td>弹性布局容器</td></tr>
+    <tr><td>Spacer</td><td>布局</td><td>Y x6</td><td>Y x1</td><td>弹性间距</td></tr>
+    <tr><td>Image</td><td>媒体</td><td>Y x1</td><td>Y x3</td><td>图片展示</td></tr>
+    <tr><td>Text</td><td>文本</td><td>Y x5</td><td>Y x14</td><td>文本显示</td></tr>
+    <tr><td>Form</td><td>表单</td><td>Y x1</td><td>-</td><td>表单容器</td></tr>
+    <tr><td>Input</td><td>表单</td><td>Y x2</td><td>-</td><td>输入框</td></tr>
+    <tr><td>Button</td><td>交互</td><td>Y x3</td><td>-</td><td>按钮</td></tr>
+    <tr><td>Divider</td><td>布局</td><td>Y x1</td><td>-</td><td>分隔线</td></tr>
+    <tr><td>Tabs</td><td>容器</td><td>-</td><td>Y x1</td><td>标签导航</td></tr>
+    <tr><td>Section</td><td>容器</td><td>-</td><td>Y x2</td><td>区块容器</td></tr>
+    <tr><td>SearchBar</td><td>表单</td><td>-</td><td>Y x1</td><td>搜索栏</td></tr>
+    <tr><td>KingKongList</td><td>列表</td><td>-</td><td>Y x1</td><td>图标导航列表</td></tr>
+    <tr><td>Grid</td><td>容器</td><td>-</td><td>Y x1</td><td>网格布局</td></tr>
+    <tr><td>ProductList</td><td>列表</td><td>-</td><td>Y x1</td><td>商品网格</td></tr>
+    <tr><td>BottomNav</td><td>导航</td><td>-</td><td>Y x1</td><td>底部导航</td></tr>
+  </table>
+
+  <div class="footer">
+    <p>Functorz Studio - 页面组件与事件绑定指南 - 2026-07-12</p>
+    <p>数据来源: packages/schema/src/fixtures.ts</p>
+  </div>
+</div>
+
+<script>
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'default',
+  themeVariables: {
+    primaryColor: '#e6f7ff',
+    primaryTextColor: '#1a1a2e',
+    primaryBorderColor: '#1890ff',
+    lineColor: '#1890ff',
+    secondaryColor: '#f9f0ff',
+    tertiaryColor: '#f6ffed'
+  },
+  flowchart: { useMaxWidth: false, htmlLabels: true, curve: 'basis' }
+});
+</script>
+</body>
+</html>

@@ -5,9 +5,10 @@ import { CommandHistory, type EditorCommand, findNode } from '@functorz/editor-c
 import { demoProject } from '@functorz/schema/fixtures'
 import {
   deserializeProject,
+  migrateProject,
+  v1ToV2,
   type ProjectSchema,
   type ThemeSchema,
-  validateProject,
 } from '@functorz/schema'
 
 interface EditorState {
@@ -27,7 +28,7 @@ interface EditorState {
   removePage: (pageId: string) => void
   renamePage: (pageId: string, name: string) => void
 }
-const initial = validateProject(demoProject)
+const initial = migrateProject(demoProject, [v1ToV2])
 const initialPageId = initial.pages.find((page) => page.name === '电商首页')?.id ?? initial.pages[0]!.id
 function uuid(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID()
@@ -57,7 +58,7 @@ export const useEditorStore = create<EditorState>()(
       set({ project: history.redo(), saveState: 'saving' })
     },
     replace: (project, markDirty = true) => {
-      const valid = validateProject(project)
+      const valid = migrateProject(project, [v1ToV2])
       const currentPageId = get().pageId
       set({
         project: valid,
@@ -86,7 +87,7 @@ export const useEditorStore = create<EditorState>()(
           children: [],
         },
       }
-      const valid = validateProject({ ...project, pages: [...project.pages, newPage] })
+      const valid = migrateProject({ ...project, pages: [...project.pages, newPage] }, [v1ToV2])
       set({
         project: valid,
         pageId: newPage.id,
@@ -101,7 +102,7 @@ export const useEditorStore = create<EditorState>()(
       const pageIndex = project.pages.findIndex((p) => p.id === pageId)
       if (pageIndex < 0) return
       const newPages = project.pages.filter((p) => p.id !== pageId)
-      const valid = validateProject({ ...project, pages: newPages })
+      const valid = migrateProject({ ...project, pages: newPages }, [v1ToV2])
       set({
         project: valid,
         pageId: valid.pages[Math.min(pageIndex, valid.pages.length - 1)]!.id,
@@ -113,7 +114,7 @@ export const useEditorStore = create<EditorState>()(
     renamePage: (pageId, name) => {
       const project = get().project
       const pages = project.pages.map((p) => (p.id === pageId ? { ...p, name } : p))
-      const valid = validateProject({ ...project, pages })
+      const valid = migrateProject({ ...project, pages }, [v1ToV2])
       set({ project: valid, saveState: 'saving' })
     },
   })),

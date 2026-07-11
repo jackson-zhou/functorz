@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Functorz Studio 组件与事件绑定指南</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --primary: #1a1a2e;
+    --accent: #0f3460;
+    --highlight: #e94560;
+    --bg: #f5f7fa;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --green: #52c41a;
+    --blue: #1890ff;
+    --orange: #faad14;
+    --purple: #722ed1;
+    --teal: #13c2c2;
+    --red: #ff4d4f;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 0;
+  }
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color: white;
+    text-align: center;
+    padding: 40px;
+    page-break-after: always;
+  }
+  .cover .logo {
+    width: 100px; height: 100px;
+    background: var(--highlight);
+    border-radius: 24px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 56px; font-weight: bold;
+    margin-bottom: 30px;
+    box-shadow: 0 12px 40px rgba(233,69,96,0.4);
+  }
+  .cover h1 { font-size: 48px; font-weight: 800; margin-bottom: 16px; }
+  .cover .subtitle { font-size: 20px; opacity: 0.85; margin-bottom: 40px; }
+  .cover .meta {
+    background: rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 24px 40px;
+    font-size: 14px;
+    line-height: 2;
+  }
+  .cover .meta span { color: var(--highlight); font-weight: bold; }
+
+  .content { padding: 40px 60px; max-width: 1100px; margin: 0 auto; }
+
+  h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 50px 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid var(--highlight);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    page-break-before: always;
+  }
+  h2:first-child { page-break-before: avoid; }
+  h2 .num {
+    background: var(--highlight);
+    color: white;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  h3 { font-size: 20px; margin: 30px 0 12px; color: var(--accent); }
+  h4 { font-size: 16px; margin: 20px 0 8px; color: var(--muted); }
+
+  .toc {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 30px;
+    margin: 30px 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .toc ul { list-style: none; }
+  .toc li {
+    padding: 10px 16px;
+    border-left: 3px solid var(--border);
+    margin: 4px 0;
+    font-size: 16px;
+  }
+  .toc li:hover { border-left-color: var(--highlight); }
+
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 20px 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  .card h3 { margin-top: 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+    background: var(--card);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  th {
+    background: var(--primary);
+    color: white;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+  }
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f9f9f9; }
+
+  code {
+    background: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  .mermaid {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    page-break-inside: avoid;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 6px;
+  }
+  .tag-green { background: #f6ffed; color: var(--green); }
+  .tag-blue { background: #e6f7ff; color: var(--blue); }
+  .tag-orange { background: #fffbe6; color: var(--orange); }
+  .tag-purple { background: #f9f0ff; color: var(--purple); }
+  .tag-red { background: #fff2f0; color: var(--red); }
+
+  .badge {
+    display: inline-block;
+    background: var(--highlight);
+    color: white;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    margin-left: 8px;
+  }
+
+  .section-note {
+    background: #fffbe6;
+    border-left: 4px solid var(--orange);
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-size: 13px;
+    border-top: 1px solid var(--border);
+    margin-top: 60px;
+  }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .stat {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .stat .num { font-size: 32px; font-weight: 800; color: var(--highlight); }
+  .stat .label { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  ul.clean { list-style: none; }
+  ul.clean li { padding: 6px 0; }
+  ul.clean li::before { content: "▸ "; color: var(--highlight); font-weight: bold; }
+
+  @media print {
+    body { padding: 0; }
+    .content { padding: 30px 40px; }
+    h2 { page-break-before: always; }
+    .cover { page-break-after: always; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== COVER ==================== -->
+<div class="cover">
+  <div class="logo">F</div>
+  <h1>Functorz Studio</h1>
+  <p class="subtitle">组件与事件绑定架构指南</p>
+  <div class="meta">
+    <span>版本</span> &nbsp; v1.0 &nbsp;|&nbsp;
+    <span>日期</span> &nbsp; 2026-07-11<br>
+    <span>技术栈</span> &nbsp; React + TypeScript + Zustand + @dnd-kit + @antv/x6<br>
+    <span>作者</span> &nbsp; Functorz Team
+  </div>
+</div>
+
+<!-- ==================== TOC ==================== -->
+<div class="content">
+  <h2><span class="num">0</span> 目录</h2>
+  <div class="toc">
+    <ul>
+      <li><strong>1.</strong> 项目概览</li>
+      <li><strong>2.</strong> 组件总览</li>
+      <li><strong>3.</strong> 组件架构图</li>
+      <li><strong>4.</strong> 事件绑定总览</li>
+      <li><strong>5.</strong> 核心组件详解 — App</li>
+      <li><strong>6.</strong> 核心组件详解 — FlowEditorModal</li>
+      <li><strong>7.</strong> 数据流与状态管理</li>
+      <li><strong>8.</strong> 事件绑定操作流程图</li>
+      <li><strong>9.</strong> 组件类型注册表</li>
+      <li><strong>10.</strong> 附录：文件结构</li>
+    </ul>
+  </div>
+
+  <!-- ==================== 1. 项目概览 ==================== -->
+  <h2><span class="num">1</span> 项目概览</h2>
+  <div class="stat-grid">
+    <div class="stat"><div class="num">5</div><div class="label">React 组件</div></div>
+    <div class="stat"><div class="num">22</div><div class="label">事件绑定</div></div>
+    <div class="stat"><div class="num">20+</div><div class="label">组件类型</div></div>
+    <div class="stat"><div class="num">4</div><div class="label">事件类型</div></div>
+  </div>
+  <p>Functorz Studio 是一款可视化低代码页面编辑器，支持拖拽组件布局、属性编辑、事件流程绑定和小程序预览构建。整体采用 React + TypeScript 构建，使用 Zustand + Immer 管理状态，@dnd-kit 实现拖拽，@antv/x6 实现流程图编辑。</p>
+
+  <!-- ==================== 2. 组件总览 ==================== -->
+  <h2><span class="num">2</span> 组件总览</h2>
+
+  <h3>2.1 主应用组件（App.tsx）</h3>
+  <table>
+    <tr><th>组件名</th><th>位置</th><th>功能描述</th><th>事件绑定数</th></tr>
+    <tr><td><strong>App</strong></td><td>App.tsx</td><td>根容器，三栏布局（左侧面板 / 画布 / 右侧面板）</td><td>12+</td></tr>
+    <tr><td><strong>PageItem</strong></td><td>App.tsx</td><td>页面列表项，支持选中、双击重命名、删除</td><td>4</td></tr>
+    <tr><td><strong>PaletteItem</strong></td><td>App.tsx</td><td>组件面板项，可拖拽到画布创建新组件</td><td>2</td></tr>
+    <tr><td><strong>NodeTree</strong></td><td>App.tsx</td><td>右侧组件树，可拖拽重排、点击选中</td><td>1</td></tr>
+    <tr><td><strong>PropertyPanel</strong></td><td>App.tsx</td><td>属性编辑面板，编辑组件 props 和 style</td><td>3+</td></tr>
+    <tr><td><strong>ItemsEditor</strong></td><td>App.tsx</td><td>列表组件（ProductList 等）的占位数据编辑器</td><td>2</td></tr>
+    <tr><td><strong>ThemePanel</strong></td><td>App.tsx</td><td>全局主题配置（主色/背景/圆角）</td><td>4</td></tr>
+    <tr><td><strong>StyleFields</strong></td><td>App.tsx</td><td>外观样式编辑（尺寸/颜色/排版/间距）</td><td>6+</td></tr>
+    <tr><td><strong>WebNode</strong></td><td>App.tsx</td><td>画布渲染节点，递归渲染组件树，支持拖拽</td><td>5</td></tr>
+    <tr><td><strong>MiniappPreviewModal</strong></td><td>App.tsx</td><td>小程序构建预览弹窗，显示二维码</td><td>2</td></tr>
+  </table>
+
+  <h3>2.2 流程图编辑器组件（components/）</h3>
+  <table>
+    <tr><th>组件名</th><th>位置</th><th>功能描述</th><th>事件绑定数</th></tr>
+    <tr><td><strong>FlowEditorModal</strong></td><td>components/FlowEditorModal.tsx</td><td>事件流程编辑弹窗，基于 @antv/x6 图形引擎</td><td>8+</td></tr>
+    <tr><td><strong>FlowNodePalette</strong></td><td>components/FlowNodePalette.tsx</td><td>流程节点面板，拖拽节点到画布</td><td>1</td></tr>
+    <tr><td><strong>FlowPropertyPanel</strong></td><td>components/FlowPropertyPanel.tsx</td><td>流程节点/连线属性面板</td><td>4+</td></tr>
+  </table>
+
+  <h3>2.3 基础设施</h3>
+  <table>
+    <tr><th>模块</th><th>文件</th><th>功能描述</th></tr>
+    <tr><td><strong>Store</strong></td><td>store.ts</td><td>Zustand + Immer 状态管理，CRUD + 撤销/重做</td></tr>
+    <tr><td><strong>Repository</strong></td><td>repository.ts</td><td>本地存储：IndexedDB（主）→ Memory（降级）</td></tr>
+    <tr><td><strong>Cloud Client</strong></td><td>cloud.ts</td><td>云端 API：登录、同步项目、构建小程序</td></tr>
+    <tr><td><strong>Preview</strong></td><td>preview.tsx</td><td>预览渲染器，接收 postMessage 更新</td></tr>
+  </table>
+
+  <!-- ==================== 3. 组件架构图 ==================== -->
+  <h2><span class="num">3</span> 组件架构图</h2>
+
+  <div class="mermaid">
+    <pre class="mermaid">
+graph TB
+    subgraph App["📱 Functorz Studio App"]
+        subgraph Left["📋 左侧面板"]
+            PageList["页面列表<br/><span style='font-size:11px;color:#666'>PageItem × N</span>"]
+            ComponentPalette["组件面板<br/><span style='font-size:11px;color:#666'>PaletteItem × 20+</span>"]
+        end
+
+        subgraph Canvas["🖼️ 画布区域"]
+            WebNode["WebNode 递归渲染<br/><span style='font-size:11px;color:#666'>支持拖拽/选中/高亮</span>"]
+        end
+
+        subgraph Right["🔧 右侧面板"]
+            PageTab["页面标签<br/>组件树 NodeTree"]
+            PropsTab["属性标签<br/>PropertyPanel + ThemePanel"]
+            EventsTab["交互标签<br/>事件绑定配置"]
+        end
+
+        subgraph Toolbar["🔘 顶部工具栏"]
+            T1["撤销"] T2["重做"] T3["导入"]
+            T4["导出"] T5["重置"] T6["发布"] T7["小程序预览"]
+        end
+
+        subgraph Modal["💬 弹窗"]
+            FlowEditor["事件流程编辑器<br/>FlowEditorModal + X6"]
+            MiniappModal["小程序预览弹窗<br/>MiniappPreviewModal"]
+        end
+    end
+
+    subgraph Infra["🏗️ 基础设施"]
+        Store["Zustand Store"]
+        Repo["Repository<br/>IndexedDB/Memory"]
+        Cloud["CloudClient"]
+    end
+
+    Left --> Store
+    Canvas --> Store
+    Right --> Store
+    Modal --> Store
+    Store <--> Repo
+    Store <--> Cloud
+    PropsTab -.-> StyleFields["StyleFields"]
+    PropsTab -.-> ItemsEditor["ItemsEditor"]
+
+    classDef green fill:#f6ffed,stroke:#52c41a
+    classDef blue fill:#e6f7ff,stroke:#1890ff
+    classDef purple fill:#f9f0ff,stroke:#722ed1
+    classDef orange fill:#fffbe6,stroke:#faad14
+    classDef red fill:#fff2f0,stroke:#ff4d4f
+
+    class PageList,ComponentPalette green
+    class WebNode blue
+    class PageTab,PropsTab,EventsTab purple
+    class T1,T2,T3,T4,T5,T6,T7 orange
+    class FlowEditor,MiniappModal red
+    class Store,Repo,Cloud orange
+    </pre>
+  </div>
+
+  <!-- ==================== 4. 事件绑定总览 ==================== -->
+  <h2><span class="num">4</span> 事件绑定总览</h2>
+
+  <div class="section-note">
+    下表汇总了所有组件绑定的事件。按"事件类型"分类：🖱️ 鼠标、🖱️ 拖拽、⌨️ 键盘、📝 表单、🔄 状态、🌐 系统。
+  </div>
+
+  <h3>4.1 主应用事件绑定</h3>
+  <table>
+    <tr>
+      <th>组件</th><th>事件</th><th>类型</th><th>触发操作</th>
+    </tr>
+    <tr><td>App → 工具栏</td><td><code>onClick</code> 撤销</td><td>🖱️ 鼠标</td><td><code>state.undo()</code></td></tr>
+    <tr><td>App → 工具栏</td><td><code>onClick</code> 重做</td><td>🖱️ 鼠标</td><td><code>state.redo()</code></td></tr>
+    <tr><td>App → 工具栏</td><td><code>onClick</code> 导入</td><td>🖱️ 鼠标</td><td>触发隐藏 file input</td></tr>
+    <tr><td>App → 工具栏</td><td><code>onClick</code> 导出</td><td>🖱️ 鼠标</td><td>下载 JSON 文件</td></tr>
+    <tr><td>App → 工具栏</td><td><code>onClick</code> 重置</td><td>🖱️ 鼠标</td><td>恢复 demoProject</td></tr>
+    <tr><td>App → 工具栏</td><td><code>onClick</code> 发布</td><td>🖱️ 鼠标</td><td><code>cloud.sync()</code></td></tr>
+    <tr><td>App → 工具栏</td><td><code>onClick</code> 小程序预览</td><td>🖱️ 鼠标</td><td>cloud.createBuild() + 轮询</td></tr>
+    <tr><td>App → file input</td><td><code>onChange</code></td><td>📝 表单</td><td>解析 JSON → replace project</td></tr>
+    <tr><td>App</td><td><code>keydown</code> Delete</td><td>⌨️ 键盘</td><td>删除选中组件</td></tr>
+    <tr><td>App → DndContext</td><td><code>onDragStart</code></td><td>🖱️ 拖拽</td><td>显示拖拽预览</td></tr>
+    <tr><td>App → DndContext</td><td><code>onDragEnd</code></td><td>🖱️ 拖拽</td><td>insert / move 节点</td></tr>
+    <tr><td>App → DndContext</td><td><code>onDragCancel</code></td><td>🖱️ 拖拽</td><td>清除预览</td></tr>
+    <tr><td>App</td><td><code>useEffect</code> auto-save</td><td>🔄 状态</td><td>project 变化时自动保存</td></tr>
+    <tr><td>PageItem</td><td><code>onClick</code></td><td>🖱️ 鼠标</td><td>选中页面</td></tr>
+    <tr><td>PageItem</td><td><code>onDoubleClick</code></td><td>🖱️ 鼠标</td><td>进入编辑模式</td></tr>
+    <tr><td>PageItem → input</td><td><code>onChange</code></td><td>📝 表单</td><td>更新输入值</td></tr>
+    <tr><td>PageItem → input</td><td><code>onBlur</code> / <code>onKeyDown</code></td><td>📝 表单</td><td>提交/取消重命名</td></tr>
+    <tr><td>PageItem → delete</td><td><code>onClick</code></td><td>🖱️ 鼠标</td><td>确认后删除页面</td></tr>
+    <tr><td>PaletteItem</td><td><code>onDragStart</code></td><td>🖱️ 拖拽</td><td>设置 drag data（componentType）</td></tr>
+    <tr><td>PaletteItem</td><td><code>onDragEnd</code></td><td>🖱️ 拖拽</td><td>清除拖拽状态</td></tr>
+    <tr><td>WebNode</td><td><code>onClick</code></td><td>🖱️ 鼠标</td><td>选中节点</td></tr>
+    <tr><td>WebNode</td><td><code>onDragOver</code></td><td>🖱️ 拖拽</td><td>显示 drop 高亮</td></tr>
+    <tr><td>WebNode</td><td><code>onDragLeave</code></td><td>🖱️ 拖拽</td><td>清除 drop 高亮</td></tr>
+    <tr><td>WebNode</td><td><code>onDrop</code></td><td>🖱️ 拖拽</td><td>在节点内插入组件</td></tr>
+    <tr><td>RightTab → 页面/属性/交互</td><td><code>onClick</code></td><td>🖱️ 鼠标</td><td>切换右侧面板标签</td></tr>
+    <tr><td>EventsTab → select</td><td><code>onChange</code></td><td>📝 表单</td><td>切换事件类型</td></tr>
+    <tr><td>EventsTab → 编辑/清除</td><td><code>onClick</code></td><td>🖱️ 鼠标</td><td>打开流程编辑器 / 清除绑定</td></tr>
+    <tr><td>PropertyPanel → 字段</td><td><code>onChange</code></td><td>📝 表单</td><td>更新组件 props</td></tr>
+    <tr><td>ThemePanel → color/select</td><td><code>onChange</code></td><td>📝 表单</td><td>更新全局主题</td></tr>
+    <tr><td>MiniappModal → backdrop</td><td><code>onClick</code></td><td>🖱️ 鼠标</td><td>关闭弹窗</td></tr>
+    <tr><td>MiniappModal → close</td><td><code>onClick</code></td><td>🖱️ 鼠标</td><td>关闭弹窗</td></tr>
+  </table>
+
+  <h3>4.2 流程图编辑器事件绑定</h3>
+  <table>
+    <tr>
+      <th>组件</th><th>事件</th><th>类型</th><th>触发操作</th>
+    </tr>
+    <tr><td>FlowEditorModal → overlay</td><td><code>onClick</code></td><td>🖱️ 鼠标</td><td>关闭弹窗</td></tr>
+    <tr><td>FlowEditorModal → header</td><td><code>onClick</code> 预览JSON</td><td>🖱️ 鼠标</td><td>显示 JSON 弹窗</td></tr>
+    <tr><td>FlowEditorModal → canvas</td><td><code>onDragOver</code></td><td>🖱️ 拖拽</td><td>显示拖拽预览</td></tr>
+    <tr><td>FlowEditorModal → canvas</td><td><code>onDrop</code></td><td>🖱️ 拖拽</td><td>添加流程节点/连线</td></tr>
+    <tr><td>FlowEditorModal → canvas</td><td><code>onDragLeave</code></td><td>🖱️ 拖拽</td><td>清除预览</td></tr>
+    <tr><td>X6 Graph</td><td><code>node:click</code></td><td>🖱️ 鼠标</td><td>选中节点，打开属性面板</td></tr>
+    <tr><td>X6 Graph</td><td><code>edge:click</code></td><td>🖱️ 鼠标</td><td>选中连线，高亮+显示工具</td></tr>
+    <tr><td>X6 Graph</td><td><code>edge:dblclick</code></td><td>🖱️ 鼠标</td><td>添加连线顶点（弯折）</td></tr>
+    <tr><td>X6 Graph</td><td><code>blank:click</code></td><td>🖱️ 鼠标</td><td>取消选中，恢复连线样式</td></tr>
+    <tr><td>X6 Graph</td><td><code>node:removed</code></td><td>🔄 状态</td><td>清除选中节点</td></tr>
+    <tr><td>FlowEditorModal</td><td><code>keydown</code> Ctrl+Z/Y</td><td>⌨️ 键盘</td><td>撤销/重做</td></tr>
+    <tr><td>FlowEditorModal</td><td><code>keydown</code> Delete</td><td>⌨️ 键盘</td><td>删除选中节点/连线</td></tr>
+    <tr><td>FlowEditorModal → footer</td><td><code>onClick</code> 保存</td><td>🖱️ 鼠标</td><td>序列化流程 → onSave</td></tr>
+    <tr><td>FlowEditorModal → footer</td><td><code>onClick</code> 取消</td><td>🖱️ 鼠标</td><td>关闭弹窗</td></tr>
+    <tr><td>FlowNodePalette → item</td><td><code>onDragStart</code></td><td>🖱️ 拖拽</td><td>设置 drag data（节点类型）</td></tr>
+    <tr><td>FlowPropertyPanel → input/select</td><td><code>onChange</code></td><td>📝 表单</td><td>更新节点/连线属性</td></tr>
+  </table>
+
+  <!-- ==================== 5. App 详解 ==================== -->
+  <h2><span class="num">5</span> 核心组件详解 — App</h2>
+
+  <h3>5.1 状态与副作用</h3>
+  <table>
+    <tr><th>useEffect</th><th>触发条件</th><th>行为</th></tr>
+    <tr><td>auto-save</td><td>project / saveState 变化</td><td>调用 scheduleAutoSave，200ms 防抖保存到 IndexedDB</td></tr>
+    <tr><td>restore</td><td>组件挂载</td><td>从 Repository 读取项目，自动迁移旧版页面</td></tr>
+    <tr><td>delete handler</td><td>组件挂载</td><td>注册 window keydown，Delete 键删除选中节点</td></tr>
+    <tr><td>flowEventType</td><td>selected 变化</td><td>Page 默认 'load'，其他默认 'tap'</td></tr>
+  </table>
+
+  <h3>5.2 DnD 拖拽体系</h3>
+  <p>使用 <code>@dnd-kit/core</code> 提供拖拽能力，支持两种拖拽模式：</p>
+  <ul class="clean">
+    <li><span class="tag tag-blue">新建</span> 从左侧组件面板拖入画布 → <code>insert</code> 命令</li>
+    <li><span class="tag tag-orange">移动</span> 在画布/组件树中拖拽节点 → <code>move</code> 命令</li>
+  </ul>
+
+  <div class="mermaid">
+    <pre class="mermaid">
+sequenceDiagram
+    participant P as 组件面板 PaletteItem
+    participant D as DndContext
+    participant C as 画布 WebNode
+    participant S as Store
+
+    P->>D: onDragStart(componentType)
+    D->>D: 设置 dragPreview 状态
+    Note over D: 显示拖拽预览图标
+
+    P->>C: onDragOver (进入画布)
+    C->>C: 显示 drop-target 高亮
+
+    C->>D: onDragEnd (在画布上松开)
+    D->>S: execute({ type:'insert', componentType, parentId, index })
+    S->>S: 更新 project 树
+    S-->>D: 返回新状态
+    D->>D: 显示 toast 通知
+
+    Note over P,C: 节点间拖拽（move 模式）同理
+    P->>D: onDragStart(nodeId)
+    D->>S: execute({ type:'move', nodeId, parentId, index })
+    </pre>
+  </div>
+
+  <h3>5.3 右侧面板事件绑定流程</h3>
+  <p>右侧面板有三个标签页，事件绑定在"交互"标签页配置：</p>
+
+  <div class="mermaid">
+    <pre class="mermaid">
+flowchart LR
+    A["选中画布组件"] --> B{事件类型}
+    B -->|"Page"| C["load / show"]
+    B -->|"其他"| D["tap / scroll"]
+    C --> E["打开 FlowEditorModal"]
+    D --> E
+    E --> F["在 X6 画布中<br/>拖拽/连线节点"]
+    F --> G["点击保存"]
+    G --> H["执行 updateEvents<br/>命令到 Store"]
+    H --> I["事件绑定完成<br/>显示 ✓ 已绑定"]
+
+    style A fill:#e6f7ff,stroke:#1890ff
+    style E fill:#f9f0ff,stroke:#722ed1
+    style H fill:#f6ffed,stroke:#52c41a
+    style I fill:#f6ffed,stroke:#52c41a
+    </pre>
+  </div>
+
+  <!-- ==================== 6. FlowEditorModal 详解 ==================== -->
+  <h2><span class="num">6</span> 核心组件详解 — FlowEditorModal</h2>
+
+  <h3>6.1 流程节点类型</h3>
+  <table>
+    <tr><th>节点类型</th><th>标签</th><th>形状</th><th>颜色</th><th>配置项</th></tr>
+    <tr><td><code>start</code></td><td>开始</td><td>圆形</td><td style="background:#52c41a">■ #52c41a</td><td>无</td></tr>
+    <tr><td><code>end</code></td><td>结束</td><td>圆形</td><td style="background:#52c41a">■ #52c41a</td><td>无</td></tr>
+    <tr><td><code>api</code></td><td>API调用</td><td>矩形</td><td style="background:#1890ff">■ #1890ff</td><td>url, method, body</td></tr>
+    <tr><td><code>alert</code></td><td>通知提示</td><td>矩形</td><td style="background:#faad14">■ #faad14</td><td>type, message</td></tr>
+    <tr><td><code>navigate</code></td><td>页面跳转</td><td>矩形</td><td style="background:#13c2c2">■ #13c2c2</td><td>pageId</td></tr>
+    <tr><td><code>setData</code></td><td>填充数据</td><td>矩形</td><td style="background:#fa8c16">■ #fa8c16</td><td>target, source</td></tr>
+    <tr><td><code>condition</code></td><td>条件分支</td><td>菱形</td><td style="background:#722ed1">■ #722ed1</td><td>expression</td></tr>
+    <tr><td><code>line</code></td><td>箭头线</td><td>线</td><td style="background:#A2B1C3">■ #A2B1C3</td><td>arrow</td></tr>
+  </table>
+
+  <h3>6.2 X6 图形引擎事件</h3>
+  <table>
+    <tr><th>Graph 事件</th><th>触发条件</th><th>处理</th></tr>
+    <tr><td><code>node:click</code></td><td>点击流程节点</td><td>设置选中节点 → 打开 FlowPropertyPanel</td></tr>
+    <tr><td><code>edge:click</code></td><td>点击连线</td><td>高亮连线 + 显示顶点/箭头工具</td></tr>
+    <tr><td><code>edge:dblclick</code></td><td>双击连线</td><td>在点击位置添加顶点（弯折连线）</td></tr>
+    <tr><td><code>blank:click</code></td><td>点击空白区域</td><td>清除所有选中和连线高亮</td></tr>
+    <tr><td><code>node:removed</code></td><td>节点被删除</td><td>清除选中节点状态</td></tr>
+  </table>
+
+  <h3>6.3 默认流程模板</h3>
+  <p>首次打开时自动创建"开始 → 结束"的默认流程：</p>
+
+  <div class="mermaid">
+    <pre class="mermaid">
+graph TD
+    START["🟢 开始<br/><span style='font-size:11px;color:#666'>start</span>"]
+    END["🟢 结束<br/><span style='font-size:11px;color:#666'>end</span>"]
+    START -->|默认连线| END
+
+    style START fill:#f6ffed,stroke:#52c41a
+    style END fill:#f6ffed,stroke:#52c41a
+    </pre>
+  </div>
+
+  <!-- ==================== 7. 数据流 ==================== -->
+  <h2><span class="num">7</span> 数据流与状态管理</h2>
+
+  <h3>7.1 Zustand Store 操作</h3>
+  <table>
+    <tr><th>方法</th><th>作用</th><th>触发场景</th></tr>
+    <tr><td><code>execute(command)</code></td><td>执行编辑器命令（insert/remove/duplicate/move/updateProps/updateStyle/updateEvents）</td><td>所有编辑操作</td></tr>
+    <tr><td><code>undo()</code></td><td>撤销上一步</td><td>工具栏 / Ctrl+Z</td></tr>
+    <tr><td><code>redo()</code></td><td>重做</td><td>工具栏 / Ctrl+Y</td></tr>
+    <tr><td><code>replace(project)</code></td><td>替换整个项目</td><td>导入 / 恢复 / 重置</td></tr>
+    <tr><td><code>setPage(id)</code></td><td>切换当前页面</td><td>点击页面列表</td></tr>
+    <tr><td><code>select(id)</code></td><td>选中/取消节点</td><td>点击画布节点</td></tr>
+    <tr><td><code>addPage(name, route)</code></td><td>添加新页面</td><td>左侧 + 按钮</td></tr>
+    <tr><td><code>removePage(id)</code></td><td>删除页面</td><td>页面列表 × 按钮</td></tr>
+    <tr><td><code>renamePage(id, name)</code></td><td>重命名页面</td><td>双击编辑提交</td></tr>
+    <tr><td><code>updateTheme(theme)</code></td><td>更新全局主题</td><td>主题面板</td></tr>
+  </table>
+
+  <h3>7.2 整体数据流</h3>
+
+  <div class="mermaid">
+    <pre class="mermaid">
+flowchart TB
+    UI["UI 组件<br/>App / FlowEditorModal<br/>/ PropertyPanel"]
+    DND["@dnd-kit<br/>DnD 拖拽"]
+    X6["@antv/x6<br/>流程图引擎"]
+    STORE["Zustand Store<br/><span style='font-size:11px'>project / history / selected</span>"]
+    HISTORY["CommandHistory<br/>撤销/重做栈"]
+    REPO["Repository<br/>IndexedDB → Memory"]
+    CLOUD["CloudClient<br/>云端 API"]
+
+    UI -->|"execute()"| STORE
+    DND -->|"onDragEnd"| STORE
+    STORE --> HISTORY
+    STORE --> REPO
+    STORE -->|"publish/sync"| CLOUD
+    X6 -->|"onSave"| STORE
+    REPO -.->|"auto-save"| STORE
+
+    classDef ui fill:#e6f7ff,stroke:#1890ff
+    classDef store fill:#f6ffed,stroke:#52c41a
+    classDef infra fill:#fffbe6,stroke:#faad14
+    class UI,DND,X6 ui
+    class STORE,HISTORY store
+    class REPO,CLOUD infra
+    </pre>
+  </div>
+
+  <!-- ==================== 8. 操作流程图 ==================== -->
+  <h2><span class="num">8</span> 事件绑定操作流程图</h2>
+
+  <h3>8.1 添加组件（拖拽新建）</h3>
+  <div class="mermaid">
+    <pre class="mermaid">
+flowchart TD
+    A["用户拖动组件面板项"] --> B["onDragStart<br/>设置 componentType"]
+    B --> C["拖入画布"]
+    C --> D["WebNode onDragOver<br/>显示 drop-target"]
+    D --> E["onDrop / onDragEnd"]
+    E --> F["计算 parentId / index<br/>（容器内追加 or 同级替换）"]
+    F --> G["execute insert 命令"]
+    G --> H["更新 project 树"]
+    H --> I["显示 toast: 组件已添加"]
+    I --> J["auto-save 到 IndexedDB"]
+
+    style A fill:#fffbe6,stroke:#faad14
+    style J fill:#f6ffed,stroke:#52c41a
+    </pre>
+  </div>
+
+  <h3>8.2 绑定事件流程</h3>
+  <div class="mermaid">
+    <pre class="mermaid">
+flowchart TD
+    A["选中画布组件"] --> B["切换到右侧 '交互' 标签"]
+    B --> C["选择事件类型<br/>tap / scroll / load / show"]
+    C --> D{是否已绑定?}
+    D -->|是| E["显示已绑定信息<br/>2个按钮: 编辑/清除"]
+    D -->|否| F["显示 '暂未绑定'<br/>1个按钮: 绑定事件"]
+    E --> G["点击 '编辑流程'"]
+    F --> G
+    G --> H["打开 FlowEditorModal<br/>加载 initialFlow"]
+    H --> I["从 FlowNodePalette 拖拽节点"]
+    I --> J["在 X6 画布中连线"]
+    J --> K["点击保存"]
+    K --> L["execute updateEvents 命令"]
+    L --> M["更新节点 events 字段"]
+    M --> N["显示 ✓ 已绑定 N 个节点"]
+    N --> O["auto-save"]
+
+    style H fill:#f9f0ff,stroke:#722ed1
+    style M fill:#f6ffed,stroke:#52c41a
+    style O fill:#f6ffed,stroke:#52c41a
+    </pre>
+  </div>
+
+  <h3>8.3 属性编辑流程</h3>
+  <div class="mermaid">
+    <pre class="mermaid">
+flowchart TD
+    A["点击画布组件"] --> B["select(node.id)<br/>打开右侧 '属性' 标签"]
+    B --> C["PropertyPanel 渲染<br/>根据 componentRegistry 生成字段"]
+    C --> D["用户修改输入框"]
+    D --> E["onChange 触发"]
+    E --> F["execute updateProps / updateStyle"]
+    F --> G["更新 node props / style"]
+    G --> H["画布实时刷新"]
+    H --> I["auto-save"]
+
+    style F fill:#f6ffed,stroke:#52c41a
+    style I fill:#f6ffed,stroke:#52c41a
+    </pre>
+  </div>
+
+  <h3>8.4 删除组件流程</h3>
+  <div class="mermaid">
+    <pre class="mermaid">
+flowchart TD
+    A["选中组件<br/>（点击画布/组件树）"] --> B{删除方式}
+    B -->|键盘| C["按 Delete / Backspace<br/>（排除 input/textarea）"]
+    B -->|按钮| D["右侧属性面板 '删除' 按钮"]
+    C --> E["execute remove 命令"]
+    D --> E
+    E --> F["从 project 树移除节点"]
+    F --> G["select(undefined) 取消选中"]
+    G --> H["显示 toast: 组件已删除"]
+    H --> I["auto-save"]
+
+    style C fill:#fff2f0,stroke:#ff4d4f
+    style E fill:#f6ffed,stroke:#52c41a
+    </pre>
+  </div>
+
+  <!-- ==================== 9. 组件类型注册表 ==================== -->
+  <h2><span class="num">9</span> 组件类型注册表</h2>
+  <p>以下组件类型由 <code>@functorz/component-registry</code> 提供，可通过拖拽添加到画布：</p>
+
+  <h4>容器类 <span class="tag tag-green">container</span></h4>
+  <table>
+    <tr><th>类型</th><th>标签</th><th>说明</th></tr>
+    <tr><td>Page</td><td>页面</td><td>页面根节点</td></tr>
+    <tr><td>Section</td><td>区块</td><td>通用区块容器</td></tr>
+    <tr><td>Flex</td><td>弹性布局</td><td>Flex 容器，支持方向/对齐/换行</td></tr>
+    <tr><td>Grid</td><td>网格布局</td><td>Grid 容器，支持列数配置</td></tr>
+    <tr><td>Card</td><td>卡片</td><td>卡片容器</td></tr>
+    <tr><td>Form</td><td>表单</td><td>表单容器</td></tr>
+    <tr><td>Swiper</td><td>轮播</td><td>轮播容器</td></tr>
+    <tr><td>Tabs</td><td>标签页</td><td>标签页容器，支持 items/variant</td></tr>
+  </table>
+
+  <h4>文本/输入类</h4>
+  <table>
+    <tr><th>类型</th><th>标签</th><th>说明</th></tr>
+    <tr><td>Text</td><td>文本</td><td>纯文本</td></tr>
+    <tr><td>Button</td><td>按钮</td><td>按钮，支持 variant</td></tr>
+    <tr><td>Input</td><td>输入框</td><td>输入框，支持 icon/placeholder</td></tr>
+    <tr><td>SearchBar</td><td>搜索栏</td><td>搜索栏，支持 buttonText/showButton</td></tr>
+    <tr><td>Badge</td><td>徽章</td><td>徽章，支持 variant/shape</td></tr>
+    <tr><td>Tag</td><td>标签</td><td>标签，支持 variant</td></tr>
+  </table>
+
+  <h4>多媒体/布局类</h4>
+  <table>
+    <tr><th>类型</th><th>标签</th><th>说明</th></tr>
+    <tr><td>Image</td><td>图片</td><td>图片，支持 objectFit</td></tr>
+    <tr><td>Divider</td><td>分隔线</td><td>分隔线，支持颜色</td></tr>
+    <tr><td>Spacer</td><td>间距</td><td>间距，支持 size</td></tr>
+    <tr><td>FAB</td><td>悬浮按钮</td><td>悬浮动作按钮，支持 icon/label/position</td></tr>
+    <tr><td>Countdown</td><td>倒计时</td><td>倒计时组件</td></tr>
+    <tr><td>KingKongList</td><td>金刚区</td><td>图标导航列表，items 数据驱动</td></tr>
+    <tr><td>ProductList</td><td>商品列表</td><td>商品列表，items 数据驱动，支持 scroll 事件</td></tr>
+    <tr><td>ProductCard</td><td>商品卡片</td><td>单个商品卡片</td></tr>
+    <tr><td>AppHeader</td><td>页面头</td><td>页面顶部导航（deprecated）</td></tr>
+    <tr><td>BottomNav</td><td>底部导航</td><td>底部 Tab 导航（deprecated）</td></tr>
+    <tr><td>PetCard</td><td>宠物卡片</td><td>宠物详情卡片（deprecated）</td></tr>
+  </table>
+
+  <!-- ==================== 10. 附录 ==================== -->
+  <h2><span class="num">10</span> 附录：文件结构</h2>
+
+  <div class="mermaid">
+    <pre class="mermaid">
+graph TB
+    subgraph studio["apps/studio/src/"]
+        App["App.tsx<br/><span style='font-size:11px;color:#666'>主应用组件</span>"]
+        Preview["preview.tsx<br/><span style='font-size:11px;color:#666'>预览渲染</span>"]
+        Store["store.ts<br/><span style='font-size:11px;color:#666'>Zustand Store</span>"]
+        Repo["repository.ts<br/><span style='font-size:11px;color:#666'>本地存储</span>"]
+        Cloud["cloud.ts<br/><span style='font-size:11px;color:#666'>云端 API</span>"]
+        Styles["styles.css<br/><span style='font-size:11px;color:#666'>全局样式</span>"]
+
+        subgraph components["components/"]
+            FlowEditorModal["FlowEditorModal.tsx<br/><span style='font-size:11px;color:#666'>流程编辑器</span>"]
+            FlowNodePalette["FlowNodePalette.tsx<br/><span style='font-size:11px;color:#666'>节点面板</span>"]
+            FlowPropertyPanel["FlowPropertyPanel.tsx<br/><span style='font-size:11px;color:#666'>属性面板</span>"]
+            FlowEditorCSS["FlowEditor.css<br/><span style='font-size:11px;color:#666'>编辑器样式</span>"]
+        end
+    end
+
+    classDef main fill:#e6f7ff,stroke:#1890ff
+    classDef comp fill:#f9f0ff,stroke:#722ed1
+    classDef infra fill:#fffbe6,stroke:#faad14
+    class App,Preview main
+    class FlowEditorModal,FlowNodePalette,FlowPropertyPanel,FlowEditorCSS comp
+    class Store,Repo,Cloud,Styles infra
+    </pre>
+  </div>
+
+  <div class="footer">
+    <p>Functorz Studio 组件与事件绑定架构指南 · 2026-07-11</p>
+    <p>Generated from source code analysis</p>
+  </div>
+</div>
+
+<script>
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'default',
+  themeVariables: {
+    primaryColor: '#e6f7ff',
+    primaryTextColor: '#1a1a2e',
+    primaryBorderColor: '#1890ff',
+    lineColor: '#1890ff',
+    secondaryColor: '#f9f0ff',
+    tertiaryColor: '#f6ffed'
+  },
+  flowchart: {
+    useMaxWidth: false,
+    htmlLabels: true,
+    curve: 'basis'
+  }
+});
+</script>
+
+</body>
+</html>

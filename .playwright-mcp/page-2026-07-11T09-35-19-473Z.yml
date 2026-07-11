@@ -1,0 +1,288 @@
+- generic [ref=f2e2]:
+  - generic [ref=f2e3]:
+    - banner [ref=f2e4]:
+      - generic [ref=f2e5]:
+        - generic [ref=f2e6]: F
+        - strong [ref=f2e7]: Functorz Studio
+        - generic [ref=f2e8]: V1
+      - generic [ref=f2e9]:
+        - button "撤销" [disabled] [ref=f2e10]
+        - button "重做" [disabled] [ref=f2e11]
+        - button "导入" [ref=f2e12]
+        - button "导出 JSON" [ref=f2e13]
+        - button "重置" [ref=f2e14]
+        - button "发布" [ref=f2e15]
+        - button "小程序预览" [ref=f2e16]
+        - generic [ref=f2e17]: 已保存
+    - complementary [ref=f2e18]:
+      - generic [ref=f2e19]:
+        - heading "页面" [level=2] [ref=f2e20]
+        - button "添加页面" [ref=f2e21] [cursor=pointer]: +
+      - generic [ref=f2e22]:
+        - button "登录页 /pages/login ×" [ref=f2e23]:
+          - generic [ref=f2e24]: 登录页
+          - generic [ref=f2e25]: /pages/login
+          - generic "删除页面" [ref=f2e26] [cursor=pointer]: ×
+        - button "电商首页 /pages/home ×" [ref=f2e27]:
+          - generic [ref=f2e28]: 电商首页
+          - generic [ref=f2e29]: /pages/home
+          - generic "删除页面" [ref=f2e30] [cursor=pointer]: ×
+      - heading "组件" [level=2] [ref=f2e31]
+      - generic [ref=f2e32]:
+        - generic "拖动“区块”到画布" [ref=f2e33]:
+          - generic [ref=f2e34]: 区
+          - text: 区块
+        - generic "拖动“弹性布局”到画布" [ref=f2e35]:
+          - generic [ref=f2e36]: 弹
+          - text: 弹性布局
+        - generic "拖动“网格”到画布" [ref=f2e37]:
+          - generic [ref=f2e38]: 网
+          - text: 网格
+        - generic "拖动“文字”到画布" [ref=f2e39]:
+          - generic [ref=f2e40]: 文
+          - text: 文字
+        - generic "拖动“图片”到画布" [ref=f2e41]:
+          - generic [ref=f2e42]: 图
+          - text: 图片
+        - generic "拖动“按钮”到画布" [ref=f2e43]:
+          - generic [ref=f2e44]: 按
+          - text: 按钮
+        - generic "拖动“卡片”到画布" [ref=f2e45]:
+          - generic [ref=f2e46]: 卡
+          - text: 卡片
+        - generic "拖动“分割线”到画布" [ref=f2e47]:
+          - generic [ref=f2e48]: 分
+          - text: 分割线
+        - generic "拖动“间距”到画布" [ref=f2e49]:
+          - generic [ref=f2e50]: 间
+          - text: 间距
+        - generic "拖动“轮播”到画布" [ref=f2e51]:
+          - generic [ref=f2e52]: 轮
+          - text: 轮播
+        - generic "拖动“表单”到画布" [ref=f2e53]:
+          - generic [ref=f2e54]: 表
+          - text: 表单
+        - generic "拖动“输入框”到画布" [ref=f2e55]:
+          - generic [ref=f2e56]: 输
+          - text: 输入框
+        - generic "拖动“搜索栏”到画布" [ref=f2e57]:
+          - generic [ref=f2e58]: 搜
+          - text: 搜索栏
+        - generic "拖动“商品卡片”到画布" [ref=f2e59]:
+          - generic [ref=f2e60]: 商
+          - text: 商品卡片
+        - generic "拖动“金刚位列表”到画布" [ref=f2e61]:
+          - generic [ref=f2e62]: 金
+          - text: 金刚位列表
+        - generic "拖动“商品列表”到画布" [ref=f2e63]:
+          - generic [ref=f2e64]: 商
+          - text: 商品列表
+        - generic "拖动“倒计时”到画布" [ref=f2e65]:
+          - generic [ref=f2e66]: 倒
+          - text: 倒计时
+        - generic "拖动“标签页”到画布" [ref=f2e67]:
+          - generic [ref=f2e68]: 标
+          - text: 标签页
+        - generic "拖动“徽章”到画布" [ref=f2e69]:
+          - generic [ref=f2e70]: 徽
+          - text: 徽章
+        - generic "拖动“标签”到画布" [ref=f2e71]:
+          - generic [ref=f2e72]: 标
+          - text: 标签
+        - generic "拖动“浮动按钮”到画布" [ref=f2e73]:
+          - generic [ref=f2e74]: 浮
+          - text: 浮动按钮
+        - generic "拖动“底部导航”到画布" [ref=f2e75]:
+          - generic [ref=f2e76]: 底
+          - text: 底部导航
+    - main [ref=f2e77]:
+      - generic [ref=f2e78]:
+        - generic [ref=f2e79]: 电商首页
+        - generic [ref=f2e80]: 390 × 844
+      - generic [ref=f2e81]:
+        - generic [ref=f2e82]:
+          - generic [ref=f2e83]: 9:41
+          - generic [ref=f2e85]: ●●●
+        - button [disabled] [ref=f2e86]:
+          - button "关注 推荐 闪购 国补 飞猪 立减" [ref=f2e87]:
+            - generic [ref=f2e88]:
+              - generic [ref=f2e89] [cursor=pointer]: 关注
+              - generic [ref=f2e90] [cursor=pointer]: 推荐
+              - generic [ref=f2e91] [cursor=pointer]: 闪购
+              - generic [ref=f2e92] [cursor=pointer]: 国补
+              - generic [ref=f2e93] [cursor=pointer]: 飞猪
+              - generic [ref=f2e94] [cursor=pointer]: 立减
+          - button [ref=f2e95]:
+            - button "千本樱 ◎ 搜索" [ref=f2e96]:
+              - generic [ref=f2e97]: ⌗
+              - generic [ref=f2e98]: 千本樱 ◎
+              - generic [ref=f2e99]: 搜索
+          - button [ref=f2e100]:
+            - button "树 芭芭农场 淘 淘工厂 币 领淘金币 市 天猫超市 ¥ 红包签到" [ref=f2e101]:
+              - generic [ref=f2e102]:
+                - generic [ref=f2e103]: 树
+                - generic [ref=f2e104]: 芭芭农场
+              - generic [ref=f2e105]:
+                - generic [ref=f2e106]: 淘
+                - generic [ref=f2e107]: 淘工厂
+              - generic [ref=f2e108]:
+                - generic [ref=f2e109]: 币
+                - generic [ref=f2e110]: 领淘金币
+              - generic [ref=f2e111]:
+                - generic [ref=f2e112]: 市
+                - generic [ref=f2e113]: 天猫超市
+              - generic [ref=f2e114]:
+                - generic [ref=f2e115]: ¥
+                - generic [ref=f2e116]: 红包签到
+          - button [ref=f2e117]:
+            - button [ref=f2e118]:
+              - button "淘宝直播" [ref=f2e119]
+              - button "好物现场看" [ref=f2e120]
+              - button "淘宝直播" [ref=f2e121]
+              - button "正在直播" [ref=f2e122]
+            - button [ref=f2e123]:
+              - button "百亿补贴" [ref=f2e124]
+              - button "官方补贴价" [ref=f2e125]
+              - button "百亿补贴" [ref=f2e126]
+              - button "¥299" [ref=f2e127]
+            - button [ref=f2e128]:
+              - button "淘宝秒杀" [ref=f2e129]
+              - button "限时低价抢" [ref=f2e130]
+              - button "淘宝秒杀" [ref=f2e131]
+              - button "¥5.88" [ref=f2e132]
+          - button [ref=f2e133]:
+            - button [ref=f2e134]:
+              - button "◀" [ref=f2e135]
+              - button "超级立减 清凉券限时领" [ref=f2e136]
+            - button [ref=f2e137]:
+              - button "¥80 立即领取" [ref=f2e138]
+          - button [ref=f2e139]:
+            - button "猜你喜欢" [ref=f2e140]
+            - button "发现今日好物 ›" [ref=f2e141]
+          - button [ref=f2e142]:
+            - article [ref=f2e143]:
+              - generic [ref=f2e144]:
+                - strong [ref=f2e145]: 专业训练乒乓球拍套装 高弹底板横直拍可选
+                - generic [ref=f2e146]: 天猫 立减10%
+                - generic [ref=f2e147]:
+                  - generic [ref=f2e148]: ¥1199
+                  - emphasis [ref=f2e149]: 100+
+            - article [ref=f2e150]:
+              - generic [ref=f2e151]:
+                - strong [ref=f2e152]: 高颜值透明无线蓝牙耳机 超长续航入耳式
+                - generic [ref=f2e153]: 天猫 券后价
+                - generic [ref=f2e154]:
+                  - generic [ref=f2e155]: ¥108
+                  - emphasis [ref=f2e156]: 6000+
+            - article [ref=f2e157]:
+              - generic [ref=f2e158]:
+                - strong [ref=f2e159]: 机械键盘 RGB背光青轴
+                - generic [ref=f2e160]: 秒杀
+                - generic [ref=f2e161]:
+                  - generic [ref=f2e162]: ¥159
+                  - emphasis [ref=f2e163]: "2345"
+            - article [ref=f2e164]:
+              - generic [ref=f2e165]:
+                - strong [ref=f2e166]: 便携充电宝 20000mAh
+                - generic [ref=f2e167]: 包邮
+                - generic [ref=f2e168]:
+                  - generic [ref=f2e169]: ¥79
+                  - emphasis [ref=f2e170]: "4567"
+          - button [ref=f2e171]:
+            - button "淘 首页" [ref=f2e172]:
+              - generic [ref=f2e173]: 淘
+              - generic [ref=f2e174]: 首页
+            - button "✦ 逛逛" [ref=f2e175]:
+              - generic [ref=f2e176]: ✦
+              - generic [ref=f2e177]: 逛逛
+            - button "▤ 消息" [ref=f2e178]:
+              - generic [ref=f2e179]: ▤
+              - generic [ref=f2e180]: 消息
+            - button "□ 购物车" [ref=f2e181]:
+              - generic [ref=f2e182]: □
+              - generic [ref=f2e183]: 购物车
+            - button "⌣ 我的淘宝" [ref=f2e184]:
+              - generic [ref=f2e185]: ⌣
+              - generic [ref=f2e186]: 我的淘宝
+          - button [ref=f2e187]
+    - complementary [ref=f2e188]:
+      - tablist "右侧编辑区" [ref=f2e189]:
+        - tab "页面" [selected] [ref=f2e190]
+        - tab "属性" [ref=f2e191]
+        - tab "交互" [ref=f2e192]
+      - tabpanel [ref=f2e193]:
+        - heading "组件树" [level=2] [ref=f2e194]
+        - generic [ref=f2e195]:
+          - button "页面" [disabled] [ref=f2e196]
+          - button "标签页" [ref=f2e199]
+          - generic [ref=f2e201]:
+            - button "区块" [ref=f2e202]
+            - button "搜索栏" [ref=f2e205]
+          - generic [ref=f2e207]:
+            - button "区块" [ref=f2e208]
+            - button "金刚位列表" [ref=f2e211]
+          - generic [ref=f2e213]:
+            - button "网格" [ref=f2e214]
+            - generic [ref=f2e216]:
+              - button "弹性布局" [ref=f2e217]
+              - button "文字 淘宝直播" [ref=f2e220]:
+                - generic [ref=f2e221]: 文字
+                - generic [ref=f2e222]: 淘宝直播
+              - button "文字 好物现场看" [ref=f2e224]:
+                - generic [ref=f2e225]: 文字
+                - generic [ref=f2e226]: 好物现场看
+              - button "图片" [ref=f2e228]
+              - button "文字 正在直播" [ref=f2e231]:
+                - generic [ref=f2e232]: 文字
+                - generic [ref=f2e233]: 正在直播
+            - generic [ref=f2e234]:
+              - button "弹性布局" [ref=f2e235]
+              - button "文字 百亿补贴" [ref=f2e238]:
+                - generic [ref=f2e239]: 文字
+                - generic [ref=f2e240]: 百亿补贴
+              - button "文字 官方补贴价" [ref=f2e242]:
+                - generic [ref=f2e243]: 文字
+                - generic [ref=f2e244]: 官方补贴价
+              - button "图片" [ref=f2e246]
+              - button "文字 ¥299" [ref=f2e249]:
+                - generic [ref=f2e250]: 文字
+                - generic [ref=f2e251]: ¥299
+            - generic [ref=f2e252]:
+              - button "弹性布局" [ref=f2e253]
+              - button "文字 淘宝秒杀" [ref=f2e256]:
+                - generic [ref=f2e257]: 文字
+                - generic [ref=f2e258]: 淘宝秒杀
+              - button "文字 限时低价抢" [ref=f2e260]:
+                - generic [ref=f2e261]: 文字
+                - generic [ref=f2e262]: 限时低价抢
+              - button "图片" [ref=f2e264]
+              - button "文字 ¥5.88" [ref=f2e267]:
+                - generic [ref=f2e268]: 文字
+                - generic [ref=f2e269]: ¥5.88
+          - generic [ref=f2e270]:
+            - button "弹性布局" [ref=f2e271]
+            - generic [ref=f2e273]:
+              - button "弹性布局" [ref=f2e274]
+              - button "文字 ◀" [ref=f2e277]:
+                - generic [ref=f2e278]: 文字
+                - generic [ref=f2e279]: ◀
+              - button "文字 超级立减 清凉券限时领" [ref=f2e281]:
+                - generic [ref=f2e282]: 文字
+                - generic [ref=f2e283]: 超级立减 清凉券限时领
+            - generic [ref=f2e284]:
+              - button "弹性布局" [ref=f2e285]
+              - button "文字 ¥80 立即领取" [ref=f2e288]:
+                - generic [ref=f2e289]: 文字
+                - generic [ref=f2e290]: ¥80 立即领取
+          - generic [ref=f2e291]:
+            - button "弹性布局" [ref=f2e292]
+            - button "文字 猜你喜欢" [ref=f2e295]:
+              - generic [ref=f2e296]: 文字
+              - generic [ref=f2e297]: 猜你喜欢
+            - button "文字 发现今日好物 ›" [ref=f2e299]:
+              - generic [ref=f2e300]: 文字
+              - generic [ref=f2e301]: 发现今日好物 ›
+          - button "商品列表" [ref=f2e303]
+          - button "底部导航" [ref=f2e306]
+          - button "间距" [ref=f2e309]
+  - status [ref=f2e311]

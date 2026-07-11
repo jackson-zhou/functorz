@@ -16,30 +16,22 @@ function nodeStyle(node: ComponentNode): React.CSSProperties {
     padding: s.spacing ? sizes[s.spacing] : undefined,
     borderRadius: s.radius ? radii[s.radius] : undefined,
     gap: s.gap ? sizes[s.gap] : undefined,
-    alignItems: s.align === 'start' ? 'flex-start' : s.align === 'end' ? 'flex-end' : s.align,
     width: s.width,
     height: s.height,
-    minHeight: s.minHeight,
     flex: s.flex,
-    paddingTop: s.paddingTop,
-    paddingRight: s.paddingRight,
-    paddingBottom: s.paddingBottom,
-    paddingLeft: s.paddingLeft,
-    marginTop: s.marginTop,
-    marginRight: s.marginRight,
-    marginBottom: s.marginBottom,
-    marginLeft: s.marginLeft,
     border: s.borderWidth ? `${s.borderWidth}px solid ${s.borderColor ?? '#e5e7eb'}` : undefined,
-    position: s.position,
-    top: s.top,
-    right: s.right,
-    bottom: s.bottom,
-    left: s.left,
-    zIndex: s.zIndex,
-    overflow: s.overflow,
     fontWeight: s.fontWeight === 'medium' ? 500 : s.fontWeight === 'semibold' ? 600 : s.fontWeight,
     textAlign: s.textAlign,
     objectFit: s.objectFit,
+  }
+}
+
+function nodeListItems(node: ComponentNode): Record<string, unknown>[] {
+  try {
+    const items = JSON.parse(String(node.props.items ?? '[]'))
+    return Array.isArray(items) ? items : []
+  } catch {
+    return []
   }
 }
 
@@ -129,12 +121,50 @@ function Node({ node }: { node: ComponentNode }) {
           </div>
         </article>
       )
+    case 'KingKongList': {
+      const items = nodeListItems(node)
+      return (
+        <div className="web-node commerce-kingkong-list" style={{ ...style, gridTemplateColumns: `repeat(${Number(node.props.columns ?? 5)}, minmax(0, 1fr))` }}>
+          {items.map((item, index) => (
+            <div className="commerce-kingkong-item" key={String(item.id ?? index)}>
+              <span style={{ backgroundColor: String(item.color ?? '#ff5000') }}>{String(item.icon ?? '')}</span>
+              <small>{String(item.label ?? '')}</small>
+            </div>
+          ))}
+        </div>
+      )
+    }
+    case 'ProductList': {
+      const items = nodeListItems(node)
+      const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        if (!node.events?.scroll) return
+        const el = e.currentTarget
+        const pct = (el.scrollTop + el.clientHeight) / el.scrollHeight
+        if (pct >= 0.66) {
+          window.parent.postMessage({ type: 'preview:scroll', nodeId: node.id }, '*')
+        }
+      }
+      return (
+        <div className="web-node commerce-product-list" style={{ ...style, gridTemplateColumns: `repeat(${Number(node.props.columns ?? 2)}, minmax(0, 1fr))`, maxHeight: style.height ? `${style.height}px` : '400px', overflowY: 'auto' }} onScroll={handleScroll}>
+          {items.map((item, index) => (
+            <article className="commerce-product-card" key={String(item.id ?? index)}>
+              <img src={String(item.image ?? '')} alt="" />
+              <div className="commerce-product-copy">
+                <strong>{String(item.name ?? '')}</strong>
+                {Boolean(item.tag) && <span className="commerce-product-tag">{String(item.tag)}</span>}
+                <div className="commerce-product-meta"><span><small>¥</small>{String(item.price ?? '')}</span><em>{String(item.sales ?? '')}</em></div>
+              </div>
+            </article>
+          ))}
+        </div>
+      )
+    }
     case 'Tabs': {
       const itemsStr = String(node.props.items ?? '')
       const items = itemsStr.split(',').map((s) => s.trim())
       const activeIndex = Number(node.props.activeIndex ?? 0)
       return (
-        <div className="web-node type-tabs" style={style}>
+        <div className={`web-node type-tabs ${node.props.variant === 'commerce' ? 'commerce-tabs' : ''}`} style={style}>
           <div className="tabs-header">
             {items.map((item, idx) => (
               <div key={idx} className={`tab-item${idx === activeIndex ? ' active' : ''}`}>
@@ -184,7 +214,7 @@ function Node({ node }: { node: ComponentNode }) {
     }
     case 'AppHeader':
       return (
-        <div className="web-node pet-app-header" style={style}>
+        <div className="web-node pet-app-header" style={{ ...style, position: 'sticky', top: 0, zIndex: 100 }}>
           <span className="pet-menu" aria-hidden="true"><i /><i /><i /></span>
           <strong>{String(node.props.title ?? '活体')}</strong>
           <span className="pet-capsule" aria-hidden="true">
@@ -232,7 +262,7 @@ function Node({ node }: { node: ComponentNode }) {
         活体: '♧', 添加: '+', 繁育: '♧', 我的: '⌣',
       }
       return (
-        <nav className="web-node pet-bottom-nav commerce-bottom-nav" style={style}>
+        <nav className="web-node pet-bottom-nav commerce-bottom-nav" style={{ ...style, position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 999 }}>
           {items.map((item, index) => (
             <button key={`${item}-${index}`} className={`${index === activeIndex ? 'active' : ''}${item === '添加' ? ' add' : ''}`}>
               <span>{icons[item] ?? '•'}</span>{item !== '添加' && <small>{item}</small>}

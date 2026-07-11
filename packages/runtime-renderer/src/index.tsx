@@ -1,20 +1,33 @@
-import type { ReactNode } from 'react'
-import { Form, Image, Input, Swiper, SwiperItem, Text, View } from '@tarojs/components'
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { Form, Image, Input, ScrollView, Swiper, SwiperItem, Text, View } from '@tarojs/components'
 import Taro from '@tarojs/taro'
+import { useDidShow } from '@tarojs/taro'
 import {
   validateProject,
-  type ActionSchema,
   type ComponentNode,
+  type Flow,
   type PageSchema,
   type ProjectSchema,
 } from '@functorz/schema'
 import { sizes, tokenStyle } from './styles.js'
+import { executeFlow, getPath, setPath, type RuntimeData } from './flow-runtime.js'
 export { tokenStyle } from './styles.js'
-export async function executeAction(action: ActionSchema | undefined): Promise<void> {
-  if (!action) return
-  if (action.type === 'navigate')
-    await Taro.navigateTo({ url: `/pages/index/index?pageId=${action.pageId}` })
-  else if (action.type === 'back') await Taro.navigateBack()
+export { evaluateCondition, executeFlow, getPath, setPath } from './flow-runtime.js'
+
+interface RuntimeContextValue {
+  data: RuntimeData
+  runFlow: (flow: Flow, signal?: AbortSignal) => Promise<void>
+}
+const RuntimeDataContext = createContext<RuntimeContextValue>({ data: {}, runFlow: async () => undefined })
+function listItems(node: ComponentNode, runtimeData: RuntimeData): Record<string, unknown>[] {
+  const bound = getPath(runtimeData, String(node.props.dataSource ?? ''))
+  if (Array.isArray(bound)) return bound.filter((item) => item && typeof item === 'object') as Record<string, unknown>[]
+  try {
+    const fallback = JSON.parse(String(node.props.items ?? '[]'))
+    return Array.isArray(fallback) ? fallback : []
+  } catch {
+    return []
+  }
 }
 export function SchemaRenderer({ project, pageId }: { project: ProjectSchema; pageId?: string }) {
   let parsed: ProjectSchema
@@ -24,15 +37,48 @@ export function SchemaRenderer({ project, pageId }: { project: ProjectSchema; pa
     return <Fallback message={error instanceof Error ? error.message : 'Invalid schema'} />
   }
   const page = parsed.pages.find((item) => item.id === pageId) ?? parsed.pages[0]
-  return page ? <NodeRenderer node={page.root} /> : <Fallback message="Page not found" />
+  return page ? <RuntimePage key={page.id} page={page} /> : <Fallback message="Page not found" />
 }
 export function PageRenderer({ page }: { page: PageSchema }) {
-  return <NodeRenderer node={page.root} />
+  return <RuntimePage key={page.id} page={page} />
+}
+function RuntimePage({ page }: { page: PageSchema }) {
+  const [data, updateData] = useState<RuntimeData>({})
+  const dataRef = useRef(data)
+  const running = useRef(false)
+  const showRunning = useRef(false)
+  dataRef.current = data
+  const runFlow = (flow: Flow, signal?: AbortSignal) => executeFlow(flow, {
+    data: dataRef.current,
+    signal,
+    setData: (path, value) => updateData((current) => {
+      const next = setPath(current, path, value)
+      dataRef.current = next
+      return next
+    }),
+  })
+  useEffect(() => {
+    const flow = page.root.events?.load
+    if (!flow || running.current) return
+    const controller = new AbortController()
+    running.current = true
+    void runFlow(flow, controller.signal).finally(() => { running.current = false })
+    return () => controller.abort()
+  }, [page.id, page.root.events?.load])
+  useDidShow(() => {
+    const flow = page.root.events?.show
+    if (!flow || showRunning.current) return
+    showRunning.current = true
+    void runFlow(flow).finally(() => { showRunning.current = false })
+  })
+  return <RuntimeDataContext.Provider value={{ data, runFlow }}><NodeRenderer node={page.root} /></RuntimeDataContext.Provider>
 }
 export function NodeRenderer({ node }: { node: ComponentNode }): ReactNode {
+  const runtime = useContext(RuntimeDataContext)
+  const runtimeData = runtime.data
   const children = node.children.map((child) => <NodeRenderer key={child.id} node={child} />)
   const style = tokenStyle(node)
-  const click = () => void executeAction(node.action)
+  const click = node.events?.tap ? () => void runtime.runFlow(node.events!.tap!) : undefined
   switch (node.type) {
     case 'Page':
     case 'Section':
@@ -278,6 +324,59 @@ export function NodeRenderer({ node }: { node: ComponentNode }): ReactNode {
         </View>
       )
     }
+    case 'KingKongList': {
+      const items = listItems(node, runtimeData)
+      const columns = Math.max(1, Math.min(6, Number(node.props.columns ?? 5)))
+      return (
+        <View style={{ ...style, display: 'grid', gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, gap: '8px' }}>
+          {items.map((item, index) => (
+            <View key={String(item.id ?? index)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', minWidth: 0 }}>
+              <View style={{ width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '16px', backgroundColor: String(item.color ?? '#ff5000'), color: '#ffffff', fontSize: '20px', fontWeight: '700' }}>
+                {String(item.icon ?? item.label ?? '')}
+              </View>
+              <Text style={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#29242a', fontSize: '12px', fontWeight: '500' }}>
+                {String(item.label ?? '')}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )
+    }
+    case 'ProductList': {
+      const items = listItems(node, runtimeData)
+      const columns = Math.max(1, Math.min(4, Number(node.props.columns ?? 2)))
+      const triggeredRef = useRef(false)
+      const handleScroll = (e: { detail?: { scrollTop?: number; scrollHeight?: number } }) => {
+        if (!node.events?.scroll || triggeredRef.current) return
+        const d = e.detail ?? {}
+        const st = d.scrollTop ?? 0
+        const sh = d.scrollHeight ?? 0
+        const ch = (style.height as number) ?? 400
+        if (sh > 0 && (st + ch) / sh >= 0.66) {
+          triggeredRef.current = true
+          void runtime.runFlow(node.events.scroll)
+        }
+      }
+      return (
+        <ScrollView scrollY style={{ ...style, height: style.height ?? '400px', display: 'grid', gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, gap: '8px' }} onScroll={handleScroll}>
+          {items.map((item, index) => (
+            <View key={String(item.id ?? index)} style={{ display: 'flex', minWidth: 0, flexDirection: 'column', overflow: 'hidden', borderRadius: '10px', backgroundColor: '#ffffff' }}>
+              <Image src={String(item.image ?? '')} mode="aspectFill" style={{ width: '100%', aspectRatio: '1/1' }} />
+              <View style={{ padding: '8px 10px 10px' }}>
+                <Text style={{ minHeight: '40px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', color: '#241f24', fontSize: '14px', lineHeight: '20px', fontWeight: '500' }}>
+                  {String(item.name ?? '')}
+                </Text>
+                {item.tag ? <Text style={{ display: 'block', marginTop: '4px', color: '#ff5000', fontSize: '11px' }}>{String(item.tag)}</Text> : null}
+                <View style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginTop: '5px', gap: '4px' }}>
+                  <Text style={{ color: '#ff5000', fontSize: '19px', fontWeight: '700' }}>¥{String(item.price ?? '')}</Text>
+                  {item.sales ? <Text style={{ color: '#999399', fontSize: '10px' }}>{String(item.sales)}</Text> : null}
+                </View>
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+      )
+    }
     case 'Countdown': {
       const label = String(node.props.label ?? '距结束')
       return (
@@ -349,30 +448,34 @@ export function NodeRenderer({ node }: { node: ComponentNode }): ReactNode {
     }
     case 'Tabs': {
       const itemsStr = String(node.props.items ?? '')
-      const items = itemsStr.split(',').map((s) => s.trim())
+      const boundItems = getPath(runtimeData, String(node.props.dataSource ?? ''))
+      const items = Array.isArray(boundItems)
+        ? boundItems.map((item) => typeof item === 'string' ? item : String((item as Record<string, unknown>).label ?? ''))
+        : itemsStr.split(',').map((s) => s.trim())
       const activeIndex = Number(node.props.activeIndex ?? 0)
+      const commerce = node.props.variant === 'commerce'
       return (
         <View style={style}>
-          {/* Tab Headers */}
-          <View style={{ display: 'flex', justifyContent: 'space-between', gap: '4px', padding: '8px 12px 14px' }}>
+          <View style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '4px', padding: commerce ? '4px 14px 6px' : '8px 12px 14px', overflow: 'hidden', backgroundColor: commerce ? '#ffffff' : undefined }}>
             {items.map((item, idx) => (
               <View
                 key={idx}
                 style={{
-                  padding: '7px 15px',
-                  borderRadius: '9999px',
-                  backgroundColor: idx === activeIndex ? '#000000' : 'transparent',
-                  color: idx === activeIndex ? '#ffffff' : '#697386',
+                  flex: commerce ? '0 0 auto' : undefined,
+                  padding: commerce ? '8px 2px 6px' : '7px 15px',
+                  borderRadius: commerce ? 0 : '9999px',
+                  borderBottom: commerce && idx === activeIndex ? '3px solid #ff5000' : undefined,
+                  backgroundColor: !commerce && idx === activeIndex ? '#000000' : 'transparent',
+                  color: commerce ? (idx === activeIndex ? '#ff5000' : '#3a3038') : (idx === activeIndex ? '#ffffff' : '#697386'),
                   fontWeight: idx === activeIndex ? '700' : '400',
-                  fontSize: '14px',
+                  fontSize: commerce && idx === activeIndex ? '18px' : '14px',
                 }}
               >
                 {item}
               </View>
             ))}
           </View>
-          {/* Tab Content */}
-          <View style={{ padding: '0 12px 16px' }}>{children}</View>
+          {!commerce && <View style={{ padding: '0 12px 16px' }}>{children}</View>}
         </View>
       )
     }

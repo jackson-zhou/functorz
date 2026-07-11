@@ -1,0 +1,248 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <defs>
+    <!-- Background gradient -->
+    <radialGradient id="bgGlow" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#232845"/>
+      <stop offset="100%" stop-color="#1a1f35"/>
+    </radialGradient>
+
+    <!-- Box glow filter -->
+    <filter id="boxGlow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"/>
+      <feOffset dx="0" dy="1" result="offsetBlur"/>
+      <feFlood flood-color="#ffffff" flood-opacity="0.15" result="color"/>
+      <feComposite in="color" in2="offsetBlur" operator="in" result="glow"/>
+      <feMerge>
+        <feMergeNode in="glow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Luminous line glow -->
+    <filter id="lineGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Arrow marker -->
+    <marker id="arrowDown" markerWidth="10" markerHeight="8" refX="5" refY="8" orient="auto">
+      <path d="M0,0 L5,8 L10,0" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+    </marker>
+
+    <marker id="arrowDownGreen" markerWidth="10" markerHeight="8" refX="5" refY="8" orient="auto">
+      <path d="M0,0 L5,8 L10,0" fill="none" stroke="#34d399" stroke-width="1.5"/>
+    </marker>
+
+    <marker id="arrowRPC" markerWidth="10" markerHeight="8" refX="5" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8" fill="none" stroke="#f472b6" stroke-width="1.5"/>
+    </marker>
+
+    <!-- Grid pattern -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1600" height="900" fill="url(#bgGlow)"/>
+  <rect width="1600" height="900" fill="url(#grid)"/>
+
+  <!-- ============================================ -->
+  <!-- LAYER 1: DESIGN TIME · Studio (Purple) -->
+  <!-- ============================================ -->
+  <g id="layer1">
+    <!-- Layer background -->
+    <rect x="40" y="55" width="1520" height="130" rx="12" fill="#5b5bd6" fill-opacity="0.08" stroke="#5b5bd6" stroke-opacity="0.25" stroke-width="1"/>
+    <!-- Layer title -->
+    <text x="60" y="80" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#a78bfa" letter-spacing="1.5">DESIGN TIME · Studio</text>
+    <!-- Boxes -->
+    <g filter="url(#boxGlow)">
+      <rect x="104" y="95" width="260" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#5b5bd6" stroke-width="1.5"/>
+      <text x="234" y="127" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Drag Page Builder</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="388" y="95" width="260" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#5b5bd6" stroke-width="1.5"/>
+      <text x="518" y="127" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Graph Flow Editor</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="672" y="95" width="260" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#5b5bd6" stroke-width="1.5"/>
+      <text x="802" y="127" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Data Model Designer</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="956" y="95" width="260" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#5b5bd6" stroke-width="1.5"/>
+      <text x="1086" y="127" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Theme System</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="1240" y="95" width="260" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#5b5bd6" stroke-width="1.5"/>
+      <text x="1370" y="127" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Template Market</text>
+    </g>
+  </g>
+
+  <!-- Arrows Layer 1 → Layer 2 -->
+  <g filter="url(#lineGlow)">
+    <line x1="800" y1="185" x2="800" y2="200" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- LAYER 2: SCHEMA LAYER · Declarative Language (Amber) -->
+  <!-- ============================================ -->
+  <g id="layer2">
+    <rect x="40" y="205" width="1520" height="130" rx="12" fill="#f59e0b" fill-opacity="0.08" stroke="#f59e0b" stroke-opacity="0.25" stroke-width="1"/>
+    <text x="60" y="230" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#fbbf24" letter-spacing="1.5">SCHEMA LAYER · Declarative Language</text>
+    <g filter="url(#boxGlow)">
+      <rect x="104" y="245" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="269" y="277" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Component Tree Schema</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="458" y="245" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="623" y="277" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Flow Schema / BPMN</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="812" y="245" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="977" y="277" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Data Model Schema</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="1166" y="245" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="1331" y="277" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Expression AST</text>
+    </g>
+  </g>
+
+  <!-- Arrows Layer 2 → Layer 3 -->
+  <g filter="url(#lineGlow)">
+    <line x1="350" y1="335" x2="350" y2="350" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+    <line x1="800" y1="335" x2="800" y2="350" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+    <line x1="1250" y1="335" x2="1250" y2="350" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- LAYER 3: RUNTIME · Three Engines (Green) -->
+  <!-- ============================================ -->
+  <g id="layer3">
+    <rect x="40" y="355" width="1520" height="200" rx="12" fill="#10b981" fill-opacity="0.08" stroke="#10b981" stroke-opacity="0.25" stroke-width="1"/>
+    <text x="60" y="378" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#34d399" letter-spacing="1.5">RUNTIME · Three Engines</text>
+
+    <!-- Divider between Client and Server -->
+    <line x1="755" y1="370" x2="755" y2="540" stroke="#10b981" stroke-opacity="0.2" stroke-width="1" stroke-dasharray="4,4"/>
+
+    <!-- Sub-section headers -->
+    <text x="418" y="400" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#6ee7b7" text-anchor="middle" letter-spacing="0.5">Client · H5 + WeChat Mini Program (Taro)</text>
+    <text x="1138" y="400" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#6ee7b7" text-anchor="middle" letter-spacing="0.5">Server</text>
+
+    <!-- Client boxes -->
+    <g filter="url(#boxGlow)">
+      <rect x="98" y="415" width="200" height="65" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#10b981" stroke-width="1.5"/>
+      <text x="198" y="440" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">UI Layout Engine</text>
+      <text x="198" y="458" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="400" fill="#64748b" text-anchor="middle" dominant-baseline="middle">①</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="316" y="415" width="200" height="65" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#10b981" stroke-width="1.5"/>
+      <text x="416" y="440" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Graph Execution Engine</text>
+      <text x="416" y="458" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="400" fill="#64748b" text-anchor="middle" dominant-baseline="middle">② (Interpreter)</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="534" y="415" width="200" height="65" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#10b981" stroke-width="1.5"/>
+      <text x="634" y="440" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">State Store</text>
+      <text x="634" y="458" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="400" fill="#64748b" text-anchor="middle" dominant-baseline="middle" />
+    </g>
+
+    <!-- Server boxes -->
+    <g filter="url(#boxGlow)">
+      <rect x="818" y="415" width="220" height="65" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#10b981" stroke-width="1.5"/>
+      <text x="928" y="440" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Graph Execution Engine</text>
+      <text x="928" y="458" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="400" fill="#64748b" text-anchor="middle" dominant-baseline="middle">② (Snurr)</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="1051" y="415" width="220" height="65" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#10b981" stroke-width="1.5"/>
+      <text x="1161" y="440" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Service Engine</text>
+      <text x="1161" y="458" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="400" fill="#64748b" text-anchor="middle" dominant-baseline="middle">③ (RPC Gateway)</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="1284" y="415" width="220" height="65" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#10b981" stroke-width="1.5"/>
+      <text x="1394" y="447" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Operator Library</text>
+    </g>
+
+    <!-- RPC connections between Client and Server (within Layer 3) -->
+    <g filter="url(#lineGlow)">
+      <!-- Client Graph Execution Engine → Server Graph Execution Engine -->
+      <path d="M516,447 L760,447" stroke="#f472b6" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowRPC)" fill="none"/>
+      <!-- Client State Store → Server Service Engine -->
+      <path d="M734,430 L818,430" stroke="#f472b6" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowRPC)" fill="none"/>
+    </g>
+    <text x="640" y="440" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" font-weight="500" fill="#f472b6" text-anchor="middle">RPC</text>
+    <text x="776" y="424" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" font-weight="500" fill="#f472b6" text-anchor="middle">RPC</text>
+  </g>
+
+  <!-- Arrows Layer 3 → Layer 4 -->
+  <g filter="url(#lineGlow)">
+    <line x1="350" y1="555" x2="350" y2="575" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+    <line x1="800" y1="555" x2="800" y2="575" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+    <line x1="1250" y1="555" x2="1250" y2="575" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- LAYER 4: DATA & INTEGRATION (Cyan) -->
+  <!-- ============================================ -->
+  <g id="layer4">
+    <rect x="40" y="580" width="1520" height="130" rx="12" fill="#06b6d4" fill-opacity="0.08" stroke="#06b6d4" stroke-opacity="0.25" stroke-width="1"/>
+    <text x="60" y="605" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#22d3ee" letter-spacing="1.5">DATA &amp; INTEGRATION</text>
+    <g filter="url(#boxGlow)">
+      <rect x="104" y="620" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="269" y="652" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">RisingWave (Database)</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="458" y="620" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="623" y="652" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Auto CRUD API</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="812" y="620" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="977" y="652" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">WeChat (Login / Payment)</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="1166" y="620" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="1331" y="652" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">HTTP Connector</text>
+    </g>
+  </g>
+
+  <!-- Arrows Layer 4 → Layer 5 -->
+  <g filter="url(#lineGlow)">
+    <line x1="350" y1="710" x2="350" y2="725" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+    <line x1="800" y1="710" x2="800" y2="725" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+    <line x1="1250" y1="710" x2="1250" y2="725" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+  </g>
+
+  <!-- ============================================ -->
+  <!-- LAYER 5: PLATFORM FOUNDATION (Indigo) -->
+  <!-- ============================================ -->
+  <g id="layer5">
+    <rect x="40" y="730" width="1520" height="130" rx="12" fill="#6366f1" fill-opacity="0.08" stroke="#6366f1" stroke-opacity="0.25" stroke-width="1"/>
+    <text x="60" y="755" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#818cf8" letter-spacing="1.5">PLATFORM FOUNDATION</text>
+    <g filter="url(#boxGlow)">
+      <rect x="104" y="770" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#6366f1" stroke-width="1.5"/>
+      <text x="269" y="802" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Account / Permission / Multi-tenant</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="458" y="770" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#6366f1" stroke-width="1.5"/>
+      <text x="623" y="802" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Publish / Version / Rollback</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="812" y="770" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#6366f1" stroke-width="1.5"/>
+      <text x="977" y="802" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Flow Debugger</text>
+    </g>
+    <g filter="url(#boxGlow)">
+      <rect x="1166" y="770" width="330" height="60" rx="8" fill="#ffffff" fill-opacity="0.95" stroke="#6366f1" stroke-width="1.5"/>
+      <text x="1331" y="802" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="600" fill="#1e293b" text-anchor="middle" dominant-baseline="middle">Collaboration / Audit</text>
+    </g>
+  </g>
+
+  <!-- Decorative side labels -->
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" font-weight="500" fill="#475569" letter-spacing="1">
+    <text x="1600" y="120" text-anchor="end" transform="rotate(90, 1600, 120)">DESIGN</text>
+    <text x="1600" y="270" text-anchor="end" transform="rotate(90, 1600, 270)">SCHEMA</text>
+    <text x="1600" y="455" text-anchor="end" transform="rotate(90, 1600, 455)">RUNTIME</text>
+    <text x="1600" y="645" text-anchor="end" transform="rotate(90, 1600, 645)">DATA</text>
+    <text x="1600" y="795" text-anchor="end" transform="rotate(90, 1600, 795)">FOUNDATION</text>
+  </g>
+</svg>

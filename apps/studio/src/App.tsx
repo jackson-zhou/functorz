@@ -45,12 +45,15 @@ function migrateBundledPages(project: ProjectSchema): ProjectSchema {
     ((node.type === 'Image' && String(node.props.src ?? '').startsWith(prefix)) ||
       (node.type === 'ProductCard' && String(node.props.image ?? '').startsWith(prefix))) ||
     node.children.some((child) => containsImageSource(child, prefix))
+  const containsType = (node: ComponentNode, type: ComponentType): boolean =>
+    node.type === type || node.children.some((child) => containsType(child, type))
   const pageIndex = project.pages.findIndex((page) => page.id === petManagementPage.id)
   const commerceIndex = project.pages.findIndex((page) => page.id === ecommercePage.id)
   const replacePetPage = pageIndex >= 0 && containsLegacy(project.pages[pageIndex]!.root)
   const replaceCommercePage = commerceIndex >= 0 && (
     containsText(project.pages[commerceIndex]!.root, '更多 ➜') ||
-    containsImageSource(project.pages[commerceIndex]!.root, 'https://picsum.photos/')
+    containsImageSource(project.pages[commerceIndex]!.root, 'https://picsum.photos/') ||
+    (containsText(project.pages[commerceIndex]!.root, '猜你喜欢') && !containsType(project.pages[commerceIndex]!.root, 'KingKongList'))
   )
   if (!replacePetPage && !replaceCommercePage) return project
   const migrated = structuredClone(project)
@@ -117,6 +120,7 @@ export function App() {
   const selected = useEditorStore(selectSelectedNode)
   const [notice, setNotice] = useState('')
   const [rightTab, setRightTab] = useState<'page' | 'properties' | 'events'>('page')
+  const [flowEventType, setFlowEventType] = useState<'tap' | 'load' | 'show' | 'scroll'>('tap')
   const [flowEditorOpen, setFlowEditorOpen] = useState(false)
   const [dragPreview, setDragPreview] = useState<{ label: string; kind: 'new' | 'move' }>()
   const [build, setBuild] = useState<BuildJob>()
@@ -127,6 +131,9 @@ export function App() {
     useSensor(MouseSensor, { activationConstraint: { distance: 4 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
   )
+  useEffect(() => {
+    setFlowEventType(selected?.type === 'Page' ? 'load' : 'tap')
+  }, [selected?.id, selected?.type])
   const insertComponent = (componentType: ComponentType, targetId: string) => {
     const target = findNode(useEditorStore.getState().project, targetId)
     if (!target) return
@@ -275,7 +282,7 @@ export function App() {
           <div className="brand">
             <span className="brand-mark">F</span>
             <strong>{PRODUCT_NAME}</strong>
-            <span className="badge">V1</span>
+            <a href="/lowcode-proposal.html" target="_blank" className="badge version-badge" title="查看低代码平台迁移方案">V1</a>
           </div>
           <div className="toolbar-actions">
             <button onClick={state.undo} disabled={!state.history.canUndo}>
@@ -408,12 +415,17 @@ export function App() {
                   <PanelTitle title="事件配置" />
                   <div style={{ padding: '0 16px 16px' }}>
                     <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', color: '#666' }}>
-                      点击事件
+                      事件类型
+                      <select value={flowEventType} onChange={(event) => setFlowEventType(event.target.value as 'tap' | 'load' | 'show' | 'scroll')}>
+                        {selected.type === 'Page' ? (
+                          <><option value="load">进入 / onLoad</option><option value="show">显示 / onShow</option></>
+                        ) : <><option value="tap">点击 / tap</option><option value="scroll">滚动加载 / scroll</option></>}
+                      </select>
                     </label>
-                    {selected.events?.tap ? (
+                    {selected.events?.[flowEventType] ? (
                       <div style={{ marginBottom: '12px' }}>
                         <div style={{ fontSize: '13px', color: '#52c41a', marginBottom: '8px' }}>
-                          ✓ 已绑定流程（{selected.events.tap.nodes.length} 个节点）
+                          ✓ 已绑定流程（{selected.events[flowEventType]!.nodes.length} 个节点）
                         </div>
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <button className="btn btn-primary" style={{ fontSize: '12px', padding: '6px 12px' }} onClick={() => setFlowEditorOpen(true)}>
@@ -423,7 +435,7 @@ export function App() {
                             className="btn btn-secondary"
                             style={{ fontSize: '12px', padding: '6px 12px' }}
                             onClick={() => {
-                              state.execute({ type: 'updateEvents', nodeId: selected.id, events: { tap: undefined } })
+                              state.execute({ type: 'updateEvents', nodeId: selected.id, events: { ...selected.events, [flowEventType]: undefined } })
                               setNotice('事件绑定已清除')
                             }}
                           >
@@ -435,13 +447,12 @@ export function App() {
                       <div style={{ marginBottom: '12px' }}>
                         <div style={{ fontSize: '13px', color: '#999', marginBottom: '8px' }}>暂未绑定</div>
                         <button className="btn btn-primary" style={{ fontSize: '12px', padding: '6px 12px' }} onClick={() => setFlowEditorOpen(true)}>
-                          绑定点击事件
+                          绑定{flowEventType === 'load' ? '进入' : flowEventType === 'show' ? '显示' : flowEventType === 'scroll' ? '滚动加载' : '点击'}事件
                         </button>
                       </div>
                     )}
                     <div style={{ fontSize: '12px', color: '#999', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e8e8e8' }}>
-                      支持的事件类型：点击（tap）<br />
-                      其他事件类型开发中...
+                      支持：点击（tap）、滚动加载（scroll）、进入（load/onLoad）、显示（show/onShow）
                     </div>
                   </div>
                 </div>
@@ -454,9 +465,9 @@ export function App() {
         {selected && (
           <FlowEditorModal
             open={flowEditorOpen}
-            initialFlow={selected.events?.tap}
+            initialFlow={selected.events?.[flowEventType]}
             onSave={(flow: Flow) => {
-              state.execute({ type: 'updateEvents', nodeId: selected.id, events: { tap: flow } })
+              state.execute({ type: 'updateEvents', nodeId: selected.id, events: { ...selected.events, [flowEventType]: flow } })
               setFlowEditorOpen(false)
               setNotice('事件流程已保存')
             }}
@@ -583,6 +594,9 @@ function NodeTree({ node, depth = 0 }: { node: ComponentNode; depth?: number }) 
 function PropertyPanel({ node }: { node: ComponentNode }) {
   const execute = useEditorStore((s) => s.execute)
   const definition = componentRegistry[node.type]
+  const inlineFields = definition.properties.filter(
+    (f) => !definition.itemSchema || f.key !== 'items',
+  )
   return (
     <div className="properties">
       <div className="selection-title">
@@ -596,7 +610,7 @@ function PropertyPanel({ node }: { node: ComponentNode }) {
           )}
         </div>
       </div>
-      {definition.properties.map((field) => (
+      {inlineFields.map((field) => (
         <label key={field.key}>
           {field.label}
           {field.kind === 'boolean' ? (
@@ -626,6 +640,18 @@ function PropertyPanel({ node }: { node: ComponentNode }) {
                 <option key={option}>{option}</option>
               ))}
             </select>
+          ) : field.kind === 'number' ? (
+            <input
+              type="number"
+              value={String(node.props[field.key] ?? '')}
+              onChange={(e) =>
+                execute({
+                  type: 'updateProps',
+                  nodeId: node.id,
+                  props: { [field.key]: e.target.value === '' ? undefined : Number(e.target.value) },
+                })
+              }
+            />
           ) : (
             <input
               type={field.kind === 'color' ? 'color' : 'text'}
@@ -642,64 +668,81 @@ function PropertyPanel({ node }: { node: ComponentNode }) {
         </label>
       ))}
       <StyleFields node={node} />
-      {node.type !== 'Page' && <ActionFields node={node} />}
+      {definition.itemSchema && <ItemsEditor node={node} />}
     </div>
   )
 }
-function ActionFields({ node }: { node: ComponentNode }) {
+function ItemsEditor({ node }: { node: ComponentNode }) {
   const execute = useEditorStore((s) => s.execute)
-  const pages = useEditorStore((s) => s.project.pages)
-  const kind = node.action?.type ?? ''
-  const setKind = (value: string) => {
-    if (!value) execute({ type: 'updateAction', nodeId: node.id, action: undefined })
-    else if (value === 'navigate')
-      execute({
-        type: 'updateAction',
-        nodeId: node.id,
-        action: { type: 'navigate', pageId: pages[0]!.id },
-      })
-    else if (value === 'submit')
-      execute({
-        type: 'updateAction',
-        nodeId: node.id,
-        action: { type: 'submit', formId: node.id },
-      })
-    else execute({ type: 'updateAction', nodeId: node.id, action: { type: 'back' } })
+  const definition = componentRegistry[node.type]
+  if (!definition.itemSchema) return null
+  const items: Record<string, unknown>[] = (() => {
+    try {
+      const parsed = JSON.parse(String(node.props.items ?? '[]'))
+      return Array.isArray(parsed) ? parsed : []
+    } catch { return [] }
+  })()
+  const MAX_ITEMS = 20
+  const commit = (newItems: Record<string, unknown>[]) => {
+    execute({
+      type: 'updateProps',
+      nodeId: node.id,
+      props: { items: newItems.length ? JSON.stringify(newItems) : '[]' },
+    })
+  }
+  const updateItem = (index: number, field: string, value: string) => {
+    const newItems = items.slice()
+    while (newItems.length <= index) newItems.push({})
+    newItems[index] = { ...newItems[index], [field]: value || undefined }
+    commit(newItems)
+  }
+  const addItem = () => {
+    if (items.length >= MAX_ITEMS) return
+    commit([...items, {}])
+  }
+  const removeItem = (index: number) => {
+    const newItems = items.slice()
+    newItems.splice(index, 1)
+    commit(newItems)
   }
   return (
-    <>
-      <h3>点击动作</h3>
-      <label>
-        动作
-        <select value={kind} onChange={(event) => setKind(event.target.value)}>
-          <option value="">无</option>
-          <option value="navigate">页面跳转</option>
-          <option value="back">返回</option>
-          <option value="submit">提交表单</option>
-        </select>
-      </label>
-      {node.action?.type === 'navigate' && (
-        <label>
-          目标页面
-          <select
-            value={node.action.pageId}
-            onChange={(event) =>
-              execute({
-                type: 'updateAction',
-                nodeId: node.id,
-                action: { type: 'navigate', pageId: event.target.value },
-              })
-            }
-          >
-            {pages.map((page) => (
-              <option value={page.id} key={page.id}>
-                {page.name}
-              </option>
+    <div className="items-editor">
+      <h3>占位数据</h3>
+      {items.map((item, i) => (
+        <div key={i} className="item-slot">
+          <span className="item-index">#{i + 1}</span>
+          <div className="item-fields">
+            {definition.itemSchema!.map((field) => (
+              <label key={field.key}>
+                {field.label}
+                {field.kind === 'color' ? (
+                  <input
+                    type="color"
+                    value={String(item[field.key] ?? '#ff5000')}
+                    onChange={(e) => updateItem(i, field.key, e.target.value)}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={String(item[field.key] ?? '')}
+                    onChange={(e) => updateItem(i, field.key, e.target.value)}
+                    placeholder={field.label}
+                  />
+                )}
+              </label>
             ))}
-          </select>
-        </label>
+          </div>
+          <button className="item-remove" onClick={() => removeItem(i)} title="删除此项">
+            ×
+          </button>
+        </div>
+      ))}
+      {items.length < MAX_ITEMS && (
+        <button className="item-add" onClick={addItem}>
+          + 添加一项
+        </button>
       )}
-    </>
+    </div>
   )
 }
 function ThemePanel() {
@@ -742,133 +785,104 @@ function StyleFields({ node }: { node: ComponentNode }) {
   const execute = useEditorStore((s) => s.execute)
   const style = node.style ?? {}
   const set = (key: string, value: string) =>
-    execute({
-      type: 'updateStyle',
-      nodeId: node.id,
-      style: { ...style, [key]: value || undefined },
-    })
+    execute({ type: 'updateStyle', nodeId: node.id, style: { ...style, [key]: value || undefined } })
   const setNumber = (key: string, value: string) =>
-    execute({
-      type: 'updateStyle',
-      nodeId: node.id,
-      style: { ...style, [key]: value === '' ? undefined : Number(value) },
-    })
-  const numberFields = [
-    ['width', '宽度'], ['height', '高度'], ['minHeight', '最小高度'], ['flex', '伸缩比例'],
-    ['paddingTop', '上内边距'], ['paddingRight', '右内边距'], ['paddingBottom', '下内边距'], ['paddingLeft', '左内边距'],
-    ['marginTop', '上外边距'], ['marginRight', '右外边距'], ['marginBottom', '下外边距'], ['marginLeft', '左外边距'],
-    ['borderWidth', '边框宽度'], ['top', 'Top'], ['right', 'Right'], ['bottom', 'Bottom'], ['left', 'Left'], ['zIndex', '层级'],
-  ] as const
+    execute({ type: 'updateStyle', nodeId: node.id, style: { ...style, [key]: value === '' ? undefined : Number(value) } })
+
+  const fields: { type: 'color' | 'number' | 'select'; key: string; label: string; options?: string[] }[] = []
+
+  // 尺寸（所有组件都可用）
+  fields.push({ type: 'number', key: 'width', label: '宽度' })
+  fields.push({ type: 'number', key: 'height', label: '高度' })
+  fields.push({ type: 'number', key: 'flex', label: '伸缩比例' })
+
+  const isText = ['Text', 'Button', 'Badge', 'Tag', 'Input'].includes(node.type)
+  const isContainer = ['Page', 'Section', 'Flex', 'Grid', 'Card', 'Form', 'Swiper', 'Tabs'].includes(node.type)
+  const isImage = node.type === 'Image'
+  const isDivider = node.type === 'Divider'
+  const isSpacer = node.type === 'Spacer'
+
+  // 排版相关
+  if (isText || ['Countdown', 'AppHeader', 'FAB'].includes(node.type)) {
+    fields.push({ type: 'color', key: 'color', label: '文字颜色' })
+    fields.push({ type: 'select', key: 'fontSize', label: '字号', options: ['xs', 'sm', 'md', 'lg', 'xl'] })
+    fields.push({ type: 'select', key: 'fontWeight', label: '字重', options: ['normal', 'medium', 'semibold', 'bold'] })
+  }
+  if (isText) {
+    fields.push({ type: 'select', key: 'textAlign', label: '文本对齐', options: ['left', 'center', 'right'] })
+  }
+
+  // 背景
+  if (!isDivider && !isSpacer && !isImage) {
+    fields.push({ type: 'color', key: 'backgroundColor', label: '背景颜色' })
+  }
+
+  // 间距/圆角
+  if (isContainer || ['Button', 'Badge', 'Tag', 'Input', 'SearchBar', 'Countdown', 'KingKongList', 'ProductList'].includes(node.type)) {
+    fields.push({ type: 'select', key: 'spacing', label: '间距', options: ['none', 'xs', 'sm', 'md', 'lg', 'xl'] })
+  }
+  if (!isSpacer && !isDivider) {
+    fields.push({ type: 'select', key: 'radius', label: '圆角', options: ['none', 'sm', 'md', 'lg', 'pill'] })
+  }
+
+  // 子项间距
+  if (isContainer || ['KingKongList', 'ProductList'].includes(node.type)) {
+    fields.push({ type: 'select', key: 'gap', label: '子项间距', options: ['none', 'xs', 'sm', 'md', 'lg'] })
+  }
+
+  // 图片适配
+  if (isImage) {
+    fields.push({ type: 'select', key: 'objectFit', label: '图片适配', options: ['cover', 'contain', 'fill'] })
+  }
+
+  // 边框
+  if (!isSpacer && !isText) {
+    fields.push({ type: 'number', key: 'borderWidth', label: '边框宽度' })
+    fields.push({ type: 'color', key: 'borderColor', label: '边框颜色' })
+  }
+
+  // 分隔线颜色
+  if (isDivider) {
+    fields.push({ type: 'color', key: 'color', label: '线条颜色' })
+  }
+
+  // Grid 列数
+  if (node.type === 'Grid') {
+    fields.push({ type: 'select', key: 'columns', label: '列数', options: ['1', '2', '3', '4'] })
+  }
+
   return (
     <>
       <h3>外观</h3>
-      <label>
-        文字颜色
-        <input
-          type="color"
-          value={style.color ?? '#172033'}
-          onChange={(e) => set('color', e.target.value)}
-        />
-      </label>
-      {numberFields.map(([key, label]) => (
+      {fields.map(({ type, key, label, options }) => (
         <label key={key}>
           {label}
-          <input type="number" value={style[key] ?? ''} onChange={(e) => setNumber(key, e.target.value)} />
+          {type === 'color' ? (
+            <input type="color" value={(style as any)[key] ?? '#000000'} onChange={(e) => set(key, e.target.value)} />
+          ) : type === 'number' ? (
+            <input type="number" value={(style as any)[key] ?? ''} onChange={(e) => setNumber(key, e.target.value)} />
+          ) : key === 'columns' ? (
+            <select value={(style as any).columns ?? 2} onChange={(e) => execute({ type: 'updateStyle', nodeId: node.id, style: { ...style, columns: Number(e.target.value) as 1 | 2 | 3 | 4 } })}>
+              {options!.map((v) => <option key={v}>{v}</option>)}
+            </select>
+          ) : (
+            <select value={(style as any)[key] ?? ''} onChange={(e) => set(key, e.target.value)}>
+              <option value="">默认</option>
+              {options!.map((v) => <option key={v}>{v}</option>)}
+            </select>
+          )}
         </label>
       ))}
-      <label>
-        边框颜色
-        <input type="color" value={style.borderColor ?? '#e5e7eb'} onChange={(e) => set('borderColor', e.target.value)} />
-      </label>
-      {([
-        ['position', '定位', ['relative', 'absolute', 'fixed']],
-        ['overflow', '溢出', ['visible', 'hidden', 'auto']],
-        ['fontWeight', '字重', ['normal', 'medium', 'semibold', 'bold']],
-        ['textAlign', '文本对齐', ['left', 'center', 'right']],
-        ['objectFit', '图片适配', ['cover', 'contain', 'fill']],
-      ] as const).map(([key, label, options]) => (
-        <label key={key}>
-          {label}
-          <select value={style[key] ?? ''} onChange={(e) => set(key, e.target.value)}>
-            <option value="">默认</option>
-            {options.map((option) => <option key={option}>{option}</option>)}
-          </select>
-        </label>
-      ))}
-      <label>
-        背景颜色
-        <input
-          type="color"
-          value={style.backgroundColor ?? '#ffffff'}
-          onChange={(e) => set('backgroundColor', e.target.value)}
-        />
-      </label>
-      <label>
-        间距
-        <select value={style.spacing ?? ''} onChange={(e) => set('spacing', e.target.value)}>
-          <option value="">默认</option>
-          {['none', 'xs', 'sm', 'md', 'lg', 'xl'].map((v) => (
-            <option key={v}>{v}</option>
-          ))}
-        </select>
-      </label>
-      <label>
-        圆角
-        <select value={style.radius ?? ''} onChange={(e) => set('radius', e.target.value)}>
-          <option value="">默认</option>
-          {['none', 'sm', 'md', 'lg', 'pill'].map((v) => (
-            <option key={v}>{v}</option>
-          ))}
-        </select>
-      </label>
-      <label>
-        字号
-        <select value={style.fontSize ?? ''} onChange={(e) => set('fontSize', e.target.value)}>
-          <option value="">默认</option>
-          {['xs', 'sm', 'md', 'lg', 'xl'].map((v) => (
-            <option key={v}>{v}</option>
-          ))}
-        </select>
-      </label>
-      <label>
-        对齐
-        <select value={style.align ?? ''} onChange={(e) => set('align', e.target.value)}>
-          <option value="">默认</option>
-          {['start', 'center', 'end', 'stretch'].map((v) => (
-            <option key={v}>{v}</option>
-          ))}
-        </select>
-      </label>
-      <label>
-        子项间距
-        <select value={style.gap ?? ''} onChange={(e) => set('gap', e.target.value)}>
-          <option value="">默认</option>
-          {['none', 'xs', 'sm', 'md', 'lg'].map((v) => (
-            <option key={v}>{v}</option>
-          ))}
-        </select>
-      </label>
-      {node.type === 'Grid' && (
-        <label>
-          列数
-          <select
-            value={style.columns ?? 2}
-            onChange={(e) =>
-              execute({
-                type: 'updateStyle',
-                nodeId: node.id,
-                style: { ...style, columns: Number(e.target.value) as 1 | 2 | 3 | 4 },
-              })
-            }
-          >
-            {[1, 2, 3, 4].map((v) => (
-              <option key={v}>{v}</option>
-            ))}
-          </select>
-        </label>
-      )}
     </>
   )
+}
+function nodeListItems(node: ComponentNode): Record<string, unknown>[] {
+  try {
+    const items = JSON.parse(String(node.props.items ?? '[]'))
+    return Array.isArray(items) ? items : []
+  } catch {
+    return []
+  }
 }
 function WebNode({
   node,
@@ -962,12 +976,42 @@ function WebNode({
         </div>
       </article>
     )
+  if (node.type === 'KingKongList') {
+    const items = nodeListItems(node)
+    return (
+      <div {...common} className={`${common.className} commerce-kingkong-list`} style={{ ...style, gridTemplateColumns: `repeat(${Number(node.props.columns ?? 5)}, minmax(0, 1fr))` }}>
+        {items.map((item, index) => (
+          <div className="commerce-kingkong-item" key={String(item.id ?? index)}>
+            <span style={{ backgroundColor: String(item.color ?? '#ff5000') }}>{String(item.icon ?? '')}</span>
+            <small>{String(item.label ?? '')}</small>
+          </div>
+        ))}
+      </div>
+    )
+  }
+  if (node.type === 'ProductList') {
+    const items = nodeListItems(node)
+    return (
+      <div {...common} className={`${common.className} commerce-product-list`} style={{ ...style, gridTemplateColumns: `repeat(${Number(node.props.columns ?? 2)}, minmax(0, 1fr))` }}>
+        {items.map((item, index) => (
+          <article className="commerce-product-card" key={String(item.id ?? index)}>
+            <img src={String(item.image ?? '')} alt="" />
+            <div className="commerce-product-copy">
+              <strong>{String(item.name ?? '')}</strong>
+              {Boolean(item.tag) && <span className="commerce-product-tag">{String(item.tag)}</span>}
+              <div className="commerce-product-meta"><span><small>¥</small>{String(item.price ?? '')}</span><em>{String(item.sales ?? '')}</em></div>
+            </div>
+          </article>
+        ))}
+      </div>
+    )
+  }
   if (node.type === 'Divider') return <hr {...common} />
   if (node.type === 'Tabs') {
     const items = String(node.props.items ?? '').split(',').map((item) => item.trim())
     const activeIndex = Number(node.props.activeIndex ?? 0)
     return (
-      <div {...common}>
+      <div {...common} className={`${common.className} ${node.props.variant === 'commerce' ? 'commerce-tabs' : ''}`}>
         <div className="tabs-header">
           {items.map((item, index) => (
             <div key={item} className={`tab-item${index === activeIndex ? ' active' : ''}`}>{item}</div>
@@ -1069,24 +1113,8 @@ function webStyle(node: ComponentNode): CSSProperties {
     flexWrap: node.props.wrap as CSSProperties['flexWrap'],
     width: s.width,
     height: s.height,
-    minHeight: s.minHeight,
     flex: s.flex,
-    paddingTop: s.paddingTop,
-    paddingRight: s.paddingRight,
-    paddingBottom: s.paddingBottom,
-    paddingLeft: s.paddingLeft,
-    marginTop: s.marginTop,
-    marginRight: s.marginRight,
-    marginBottom: s.marginBottom,
-    marginLeft: s.marginLeft,
     border: s.borderWidth ? `${s.borderWidth}px solid ${s.borderColor ?? '#e5e7eb'}` : undefined,
-    position: s.position === 'fixed' ? 'absolute' : s.position,
-    top: s.top,
-    right: s.right,
-    bottom: s.bottom,
-    left: s.left,
-    zIndex: s.zIndex,
-    overflow: s.overflow,
     fontWeight: s.fontWeight === 'medium' ? 500 : s.fontWeight === 'semibold' ? 600 : s.fontWeight,
     textAlign: s.textAlign,
     objectFit: s.objectFit,
