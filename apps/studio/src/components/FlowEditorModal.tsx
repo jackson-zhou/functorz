@@ -22,6 +22,16 @@ function uuid(): string {
   })
 }
 
+// 旧端口 ID -> 新端口 ID 映射（兼容已保存的流程数据）
+const PORT_ID_MIGRATE: Record<string, string> = {
+  in: 'left',
+  out: 'right',
+  outBottom: 'bottom',
+}
+function migratePortId(portId: string): string {
+  return PORT_ID_MIGRATE[portId] || portId
+}
+
 function getMarkerConfig(arrow: string) {
   switch (arrow) {
     case 'backward':
@@ -123,6 +133,8 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
   useEffect(() => {
     if (!open || !containerRef.current) return
 
+    let connectingStarted = false
+
     const graph = new Graph({
       container: containerRef.current,
       autoResize: true,
@@ -144,8 +156,18 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
           name: 'normal',
         },
         anchor: 'center',
-        connectionPoint: 'boundary',
+        connectionPoint: 'anchor',
         validateConnection({ sourceMagnet, targetMagnet }) {
+          // 拖线开始时禁用画布平移、显示所有节点的端口
+          if (!connectingStarted) {
+            connectingStarted = true
+            graph.disablePanning()
+            graph.getNodes().forEach((n: Node) => {
+              n.getPorts().forEach((port) => {
+                if (port.id) n.portProp(port.id, 'attrs/circle/opacity', 1)
+              })
+            })
+          }
           // 必须从端口连接到端口
           if (!sourceMagnet || !targetMagnet) return false
           return true
@@ -261,6 +283,8 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
 
     graph.on('edge:mousedown', ({ edge, x, y }: { edge: Edge; x: number; y: number }) => {
       edgeDrag = { edge, startX: x, startY: y, lastX: x, lastY: y, detached: false }
+      // 禁用画布平移，防止拖动连线时画布跟着动
+      graph.disablePanning()
     })
 
     const handleEdgeMouseMove = (e: MouseEvent) => {
@@ -295,7 +319,17 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
     }
 
     const handleEdgeMouseUp = () => {
-      edgeDrag = null
+      // 连线拖动结束：恢复画布平移
+      if (edgeDrag) {
+        graph.enablePanning()
+        edgeDrag = null
+      }
+      // 连线创建结束：恢复画布平移、隐藏端口
+      if (connectingStarted) {
+        connectingStarted = false
+        graph.enablePanning()
+        hideAllPorts()
+      }
     }
 
     document.addEventListener('mousemove', handleEdgeMouseMove)
@@ -439,8 +473,8 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
           zIndex: 10,
           data: { arrow },
         }
-        if (edge.sourcePort) edgeConfig.sourcePort = edge.sourcePort
-        if (edge.targetPort) edgeConfig.targetPort = edge.targetPort
+        if (edge.sourcePort) edgeConfig.sourcePort = migratePortId(edge.sourcePort)
+        if (edge.targetPort) edgeConfig.targetPort = migratePortId(edge.targetPort)
         graph.addEdge(edgeConfig)
       })
     } else {
