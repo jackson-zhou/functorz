@@ -243,54 +243,21 @@
   stroke-width: 3 !important;
 }
 
+.x6-node rect {
+  fill: #fff;
+  stroke: #000;
+  stroke-width: 2;
+}
+
+.x6-node text {
+  fill: #000;
+  font-size: 12px;
+}
+
 .x6-node-start rect,
 .x6-node-end rect {
-  fill: #52c41a;
-  stroke: #389e0d;
   rx: 50%;
   ry: 50%;
-}
-
-.x6-node-start text,
-.x6-node-end text {
-  fill: white;
-  font-size: 12px;
-}
-
-.x6-node-api rect {
-  fill: #1890ff;
-  stroke: #096dd9;
-  rx: 4px;
-  ry: 4px;
-}
-
-.x6-node-api text {
-  fill: white;
-  font-size: 12px;
-}
-
-.x6-node-alert rect {
-  fill: #faad14;
-  stroke: #d48806;
-  rx: 4px;
-  ry: 4px;
-}
-
-.x6-node-alert text {
-  fill: white;
-  font-size: 12px;
-}
-
-.x6-node-navigate rect {
-  fill: #13c2c2;
-  stroke: #08979c;
-  rx: 4px;
-  ry: 4px;
-}
-
-.x6-node-navigate text {
-  fill: white;
-  font-size: 12px;
 }
 
 /* 连线标签样式 */

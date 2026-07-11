@@ -14,6 +14,14 @@ interface FlowEditorModalProps {
 
 const ARROW_BLOCK = { name: 'block', width: 12, height: 8 }
 
+function uuid(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') return crypto.randomUUID()
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
+  })
+}
+
 function getMarkerConfig(arrow: string) {
   switch (arrow) {
     case 'backward':
@@ -53,7 +61,7 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
     }
 
   // 根据节点类型构建 attrs（条件分支用 polygon 菱形，其余用 rect 圆角矩形）
-  const buildNodeAttrs = (type: string, color: string) => {
+  const buildNodeAttrs = (type: string, _color: string) => {
     if (type === 'condition') {
       return {
         body: {
@@ -71,175 +79,43 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
     const isRound = type === 'start' || type === 'end'
     return {
       body: {
-        fill: color,
+        fill: '#fff',
         rx: isRound ? 30 : 4,
         ry: isRound ? 30 : 4,
-        stroke: 'none',
+        stroke: '#000',
+        strokeWidth: 2,
       },
       label: {
-        fill: '#fff',
+        fill: '#000',
         fontSize: 12,
       },
     }
   }
 
-  // 节点端口配置（必须在节点级别定义，Graph 级别的 ports 配置会被 X6 忽略）
-  const getNodePorts = (type: string) => {
-    if (type === 'condition') {
-      return {
-        groups: {
-          in: {
-            position: 'left' as const,
-            attrs: {
-              circle: {
-                r: 5,
-                magnet: 'passive',
-                stroke: '#31d0c6',
-                strokeWidth: 2,
-                fill: '#fff',
-                visibility: 'hidden',
-              },
-            },
-          },
-          out: {
-            position: 'right' as const,
-            attrs: {
-              circle: {
-                r: 5,
-                magnet: true,
-                stroke: '#31d0c6',
-                strokeWidth: 2,
-                fill: '#fff',
-                visibility: 'hidden',
-              },
-            },
-          },
-          outBottom: {
-            position: 'bottom' as const,
-            attrs: {
-              circle: {
-                r: 5,
-                magnet: true,
-                stroke: '#31d0c6',
-                strokeWidth: 2,
-                fill: '#fff',
-                visibility: 'hidden',
-              },
-            },
-          },
-        },
-        items: [
-          {
-            id: 'in',
-            group: 'in',
-            attrs: {
-              circle: {
-                r: 4,
-                magnet: true,
-                stroke: '#31d0c6',
-                strokeWidth: 1,
-                fill: '#fff',
-              },
-            },
-          },
-          {
-            id: 'out',
-            group: 'out',
-            attrs: {
-              circle: {
-                r: 4,
-                magnet: true,
-                stroke: '#31d0c6',
-                strokeWidth: 1,
-                fill: '#fff',
-              },
-            },
-          },
-          {
-            id: 'outBottom',
-            group: 'outBottom',
-            attrs: {
-              circle: {
-                r: 4,
-                magnet: true,
-                stroke: '#31d0c6',
-                strokeWidth: 1,
-                fill: '#fff',
-              },
-            },
-          },
-        ],
-      }
+  // 节点端口配置 — 所有节点统一使用 4 个连接点（上/右/下/左）
+  const getNodePorts = (_type: string) => {
+    const portAttrs = {
+      circle: {
+        r: 2,
+        magnet: true,
+        stroke: '#31d0c6',
+        strokeWidth: 1,
+        fill: '#fff',
+        opacity: 0,
+      },
     }
     return {
       groups: {
-        in: {
-          position: 'left' as const,
-          attrs: {
-            circle: {
-              r: 5,
-              magnet: 'passive',
-              stroke: '#31d0c6',
-              strokeWidth: 2,
-              fill: '#fff',
-              visibility: 'hidden',
-            },
-          },
-        },
-        out: {
-          position: 'right' as const,
-          attrs: {
-            circle: {
-              r: 5,
-              magnet: true,
-              stroke: '#31d0c6',
-              strokeWidth: 2,
-              fill: '#fff',
-              visibility: 'hidden',
-            },
-          },
-        },
-        outBottom: {
-          position: 'bottom' as const,
-          attrs: {
-            circle: {
-              r: 5,
-              magnet: true,
-              stroke: '#31d0c6',
-              strokeWidth: 2,
-              fill: '#fff',
-              visibility: 'hidden',
-            },
-          },
-        },
+        left: { position: 'left' as const, attrs: portAttrs },
+        top: { position: 'top' as const, attrs: portAttrs },
+        right: { position: 'right' as const, attrs: portAttrs },
+        bottom: { position: 'bottom' as const, attrs: portAttrs },
       },
       items: [
-        {
-          id: 'in',
-          group: 'in',
-          attrs: {
-            circle: {
-              r: 4,
-              magnet: true,
-              stroke: '#31d0c6',
-              strokeWidth: 1,
-              fill: '#fff',
-            },
-          },
-        },
-        {
-          id: 'out',
-          group: 'out',
-          attrs: {
-            circle: {
-              r: 4,
-              magnet: true,
-              stroke: '#31d0c6',
-              strokeWidth: 1,
-              fill: '#fff',
-            },
-          },
-        },
+        { id: 'left', group: 'left', attrs: portAttrs },
+        { id: 'top', group: 'top', attrs: portAttrs },
+        { id: 'right', group: 'right', attrs: portAttrs },
+        { id: 'bottom', group: 'bottom', attrs: portAttrs },
       ],
     }
   }
@@ -258,19 +134,20 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
       mousewheel: false,
       connecting: {
         snap: true,
-        allowBlank: true,
+        allowBlank: false,
         allowLoop: false,
         allowMulti: true,
-        allowNode: true,
+        allowNode: false,
         allowPort: true,
         connector: { name: 'normal' },
         router: {
           name: 'normal',
         },
         anchor: 'center',
-        connectionPoint: 'anchor',
+        connectionPoint: 'boundary',
         validateConnection({ sourceMagnet, targetMagnet }) {
-          if (sourceMagnet || targetMagnet) return true
+          // 必须从端口连接到端口
+          if (!sourceMagnet || !targetMagnet) return false
           return true
         },
         createEdge() {
@@ -306,7 +183,7 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
       },
       interacting: {
         edgeLabelMovable: true,
-        edgeMovable: true,
+        edgeMovable: false,
         vertexMovable: true,
         vertexAddable: true,
         vertexDeletable: true,
@@ -327,6 +204,7 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
         config: data.config || {},
       })
       setSelectedEdge(null)
+      showNodePorts(node)
     })
 
     // 双击连线添加顶点（弯折）
@@ -349,8 +227,14 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
     })
 
     graph.on('edge:click', ({ edge }: { edge: Edge }) => {
+      // 拖动后不触发 click
+      if (edgeWasDragged) {
+        edgeWasDragged = false
+        return
+      }
       // 选中连线时取消选中节点
       setSelectedNode(null)
+      hideAllPorts()
       // 先恢复其他连线样式和移除工具
       graph.getEdges().forEach((other: Edge) => {
         if (other.id !== edge.id) {
@@ -359,15 +243,9 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
           other.removeTools()
         }
       })
-      // 高亮当前连线并显示工具
+      // 高亮当前连线（单击仅选中，不加任何工具）
       edge.attr('line/stroke', '#1890ff')
       edge.attr('line/strokeWidth', 3)
-      edge.addTools([
-        { name: 'vertices' },      // 显示顶点（弯折点）
-        { name: 'segments' },      // 显示线段中点（可以添加顶点）
-        { name: 'source-arrowhead' }, // 起点箭头
-        { name: 'target-arrowhead' }, // 终点箭头
-      ])
       const edgeData = edge.getData() || {}
       const labelText = edge.getLabels()?.[0]?.attrs?.text?.text
       setSelectedEdge({
@@ -376,6 +254,52 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
         label: typeof labelText === 'string' ? labelText : '',
       })
     })
+
+    // 自定义连线拖动：按住拖动可脱离两端节点
+    let edgeDrag: { edge: Edge; startX: number; startY: number; lastX: number; lastY: number; detached: boolean } | null = null
+    let edgeWasDragged = false
+
+    graph.on('edge:mousedown', ({ edge, x, y }: { edge: Edge; x: number; y: number }) => {
+      edgeDrag = { edge, startX: x, startY: y, lastX: x, lastY: y, detached: false }
+    })
+
+    const handleEdgeMouseMove = (e: MouseEvent) => {
+      if (!edgeDrag) return
+      const pt = graph.clientToGraph(e.clientX, e.clientY)
+      if (!edgeDrag.detached) {
+        // 移动超过阈值才算拖动（区分单击和拖动）
+        if (Math.abs(pt.x - edgeDrag.startX) < 4 && Math.abs(pt.y - edgeDrag.startY) < 4) return
+        // 脱离两端节点，转为坐标点
+        const sp = edgeDrag.edge.getSourcePoint()
+        const tp = edgeDrag.edge.getTargetPoint()
+        edgeDrag.edge.setSource(sp)
+        edgeDrag.edge.setTarget(tp)
+        edgeDrag.detached = true
+        edgeWasDragged = true
+      }
+      const dx = pt.x - edgeDrag.lastX
+      const dy = pt.y - edgeDrag.lastY
+      // 移动 source
+      const sp = edgeDrag.edge.getSourcePoint()
+      edgeDrag.edge.setSource({ x: sp.x + dx, y: sp.y + dy })
+      // 移动 target
+      const tp = edgeDrag.edge.getTargetPoint()
+      edgeDrag.edge.setTarget({ x: tp.x + dx, y: tp.y + dy })
+      // 移动顶点
+      const verts = edgeDrag.edge.getVertices()
+      if (verts.length > 0) {
+        edgeDrag.edge.setVertices(verts.map((v) => ({ x: v.x + dx, y: v.y + dy })))
+      }
+      edgeDrag.lastX = pt.x
+      edgeDrag.lastY = pt.y
+    }
+
+    const handleEdgeMouseUp = () => {
+      edgeDrag = null
+    }
+
+    document.addEventListener('mousemove', handleEdgeMouseMove)
+    document.addEventListener('mouseup', handleEdgeMouseUp)
 
     // 点击空白处移除所有边工具
     graph.on('blank:click', () => {
@@ -407,22 +331,27 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
       })
     })
 
-    // 鼠标悬停时显示节点连接点
-    graph.on('node:mouseenter', ({ node }: { node: Node }) => {
-      node.getPorts().forEach((port) => {
-        if (port.id) node.portProp(port.id, 'attrs/circle/visibility', 'visible')
+    // 选中节点时显示连接点，取消选中时隐藏
+    const showNodePorts = (targetNode: Node) => {
+      graph.getNodes().forEach((n: Node) => {
+        n.getPorts().forEach((port) => {
+          if (port.id) n.portProp(port.id, 'attrs/circle/opacity', n.id === targetNode.id ? 1 : 0)
+        })
       })
-    })
+    }
 
-    graph.on('node:mouseleave', ({ node }: { node: Node }) => {
-      node.getPorts().forEach((port) => {
-        if (port.id) node.portProp(port.id, 'attrs/circle/visibility', 'hidden')
+    const hideAllPorts = () => {
+      graph.getNodes().forEach((n: Node) => {
+        n.getPorts().forEach((port) => {
+          if (port.id) n.portProp(port.id, 'attrs/circle/opacity', 0)
+        })
       })
-    })
+    }
 
     graph.on('blank:click', () => {
       setSelectedNode(null)
       setSelectedEdge(null)
+      hideAllPorts()
     })
 
     graph.on('node:removed', () => {
@@ -516,7 +445,7 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
       })
     } else {
       const startNode = graph.addNode({
-        id: crypto.randomUUID(),
+        id: uuid(),
         shape: 'rect',
         x: 100,
         y: 200,
@@ -525,13 +454,14 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
         label: '开始',
         attrs: {
           body: {
-            fill: '#52c41a',
+            fill: '#fff',
             rx: 30,
             ry: 30,
-            stroke: 'none',
+            stroke: '#000',
+            strokeWidth: 2,
           },
           label: {
-            fill: '#fff',
+            fill: '#000',
             fontSize: 12,
           },
         },
@@ -540,7 +470,7 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
       })
 
       const endNode = graph.addNode({
-        id: crypto.randomUUID(),
+        id: uuid(),
         shape: 'rect',
         x: 500,
         y: 200,
@@ -549,13 +479,14 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
         label: '结束',
         attrs: {
           body: {
-            fill: '#52c41a',
+            fill: '#fff',
             rx: 30,
             ry: 30,
-            stroke: 'none',
+            stroke: '#000',
+            strokeWidth: 2,
           },
           label: {
-            fill: '#fff',
+            fill: '#000',
             fontSize: 12,
           },
         },
@@ -564,11 +495,11 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
       })
 
       graph.addEdge({
-        id: crypto.randomUUID(),
+        id: uuid(),
         source: startNode.id,
-        sourcePort: 'out',
+        sourcePort: 'right',
         target: endNode.id,
-        targetPort: 'in',
+        targetPort: 'left',
         attrs: {
           line: {
             stroke: '#A2B1C3',
@@ -589,6 +520,8 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown, { capture: true })
+      document.removeEventListener('mousemove', handleEdgeMouseMove)
+      document.removeEventListener('mouseup', handleEdgeMouseUp)
       graph.dispose()
       graphRef.current = null
       setSelectedNode(null)
@@ -630,7 +563,7 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
       const startX = Math.max(0, x)
       const startY = Math.max(0, y)
       graphRef.current.addEdge({
-        id: crypto.randomUUID(),
+        id: uuid(),
         source: { x: startX, y: startY },
         target: { x: startX + 120, y: startY },
         attrs: {
@@ -654,7 +587,7 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
     const nodeHeight = style.height
 
     const addedNode = graphRef.current.addNode({
-      id: crypto.randomUUID(),
+      id: uuid(),
       shape: style.shape || 'rect',
       x: nodeX,
       y: nodeY,
@@ -681,9 +614,9 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
 
       // 是 - 右边
       graphRef.current.addEdge({
-        id: crypto.randomUUID(),
+        id: uuid(),
         source: addedNode.id,
-        sourcePort: 'out',
+        sourcePort: 'right',
         target: { x: nodeX + nodeWidth + 80, y: nodeY + nodeHeight / 2 },
         labels: [{ ...labelStyle, attrs: { ...labelStyle.attrs, text: { ...labelStyle.attrs.text, text: '是' } } }],
         attrs: {
@@ -699,9 +632,9 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
 
       // 否 - 下边
       graphRef.current.addEdge({
-        id: crypto.randomUUID(),
+        id: uuid(),
         source: addedNode.id,
-        sourcePort: 'outBottom',
+        sourcePort: 'bottom',
         target: { x: nodeX + nodeWidth / 2, y: nodeY + nodeHeight + 80 },
         labels: [{ ...labelStyle, attrs: { ...labelStyle.attrs, text: { ...labelStyle.attrs.text, text: '否' } } }],
         attrs: {
