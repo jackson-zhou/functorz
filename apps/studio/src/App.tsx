@@ -294,13 +294,13 @@ export function App() {
             <button onClick={() => importRef.current?.click()}>导入</button>
             <button onClick={exportJson}>导出 JSON</button>
             <button onClick={() => { useEditorStore.getState().replace(demoProject); setNotice('已重置为初始项目') }}>重置</button>
-            <button className="publish-button" onClick={() => void publish()}>发布</button>
+            <button className="publish-button" disabled onClick={() => void publish()}>发布</button>
             <button
               className="preview-miniapp-button"
+              disabled
               onClick={() => void previewMiniapp()}
-              disabled={building}
             >
-              {building ? '构建中…' : '小程序预览'}
+              小程序预览
             </button>
             <span className={`save ${state.saveState}`} title={state.saveState === 'error' ? '本地保存失败，数据仍保留在当前会话中' : undefined}>
               {state.saveState === 'saved'
@@ -414,45 +414,80 @@ export function App() {
                 <div>
                   <PanelTitle title="事件配置" />
                   <div style={{ padding: '0 16px 16px' }}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', color: '#666' }}>
-                      事件类型
-                      <select value={flowEventType} onChange={(event) => setFlowEventType(event.target.value as 'tap' | 'load' | 'show' | 'scroll')}>
-                        {selected.type === 'Page' ? (
-                          <><option value="load">进入 / onLoad</option><option value="show">显示 / onShow</option></>
-                        ) : <><option value="tap">点击 / tap</option><option value="scroll">滚动加载 / scroll</option></>}
-                      </select>
-                    </label>
-                    {selected.events?.[flowEventType] ? (
-                      <div style={{ marginBottom: '12px' }}>
-                        <div style={{ fontSize: '13px', color: '#52c41a', marginBottom: '8px' }}>
-                          ✓ 已绑定流程（{selected.events[flowEventType]!.nodes.length} 个节点）
-                        </div>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <button className="btn btn-primary" style={{ fontSize: '12px', padding: '6px 12px' }} onClick={() => setFlowEditorOpen(true)}>
-                            编辑流程
-                          </button>
-                          <button
-                            className="btn btn-secondary"
-                            style={{ fontSize: '12px', padding: '6px 12px' }}
-                            onClick={() => {
-                              state.execute({ type: 'updateEvents', nodeId: selected.id, events: { ...selected.events, [flowEventType]: undefined } })
-                              setNotice('事件绑定已清除')
-                            }}
-                          >
-                            清除
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div style={{ marginBottom: '12px' }}>
-                        <div style={{ fontSize: '13px', color: '#999', marginBottom: '8px' }}>暂未绑定</div>
-                        <button className="btn btn-primary" style={{ fontSize: '12px', padding: '6px 12px' }} onClick={() => setFlowEditorOpen(true)}>
-                          绑定{flowEventType === 'load' ? '进入' : flowEventType === 'show' ? '显示' : flowEventType === 'scroll' ? '滚动加载' : '点击'}事件
-                        </button>
-                      </div>
-                    )}
+                    <div className="event-table">
+                      <table>
+                        <thead>
+                          <tr>
+                            <th style={{ width: '80px' }}>事件类型</th>
+                            <th style={{ width: '140px' }}>说明</th>
+                            <th>操作</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(selected.type === 'Page' ? [
+                            { type: 'load' as const, label: '进入', desc: 'onLoad' },
+                            { type: 'show' as const, label: '显示', desc: 'onShow' },
+                          ] : [
+                            { type: 'tap' as const, label: '点击', desc: 'tap' },
+                            { type: 'scroll' as const, label: '滚动加载', desc: 'scroll' },
+                          ]).map(({ type, label, desc }) => {
+                            const bound = selected.events?.[type]
+                            return (
+                              <tr key={type} className={bound ? 'bound' : ''}>
+                                <td>
+                                  <strong>{label}</strong>
+                                  <div style={{ fontSize: '11px', color: '#999', fontWeight: 'normal' }}>{desc}</div>
+                                </td>
+                                <td style={{ color: '#666' }}>
+                                  {type === 'load' ? '页面加载时触发' : type === 'show' ? '页面显示时触发' : type === 'tap' ? '用户点击时触发' : '滚动到底部时触发'}
+                                </td>
+                                <td style={{ position: 'relative' }}>
+                                  {bound ? (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                      <button
+                                        className="btn btn-primary"
+                                        style={{ fontSize: '11px', padding: '4px 8px' }}
+                                        onClick={() => {
+                                          setFlowEventType(type)
+                                          setFlowEditorOpen(true)
+                                        }}
+                                      >
+                                        编辑
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      className="btn btn-primary"
+                                      style={{ fontSize: '11px', padding: '4px 8px' }}
+                                      onClick={() => {
+                                        setFlowEventType(type)
+                                        setFlowEditorOpen(true)
+                                      }}
+                                    >
+                                      绑定
+                                    </button>
+                                  )}
+                                  {bound && (
+                                    <button
+                                      className="btn-clear-event"
+                                      title="清除绑定"
+                                      onClick={() => {
+                                        state.execute({ type: 'updateEvents', nodeId: selected.id, events: { ...selected.events, [type]: undefined } })
+                                        setNotice('事件绑定已清除')
+                                      }}
+                                    >
+                                      ×
+                                    </button>
+                                  )}
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
                     <div style={{ fontSize: '12px', color: '#999', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e8e8e8' }}>
-                      支持：点击（tap）、滚动加载（scroll）、进入（load/onLoad）、显示（show/onShow）
+                      提示：选择不同组件可查看对应可绑定的事件类型
                     </div>
                   </div>
                 </div>
