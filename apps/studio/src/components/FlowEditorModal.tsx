@@ -364,14 +364,6 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
       edgeDrag.lastY = pt.y
     }
 
-    const handleUndo = () => {
-      history.undo()
-    }
-
-    const handleRedo = () => {
-      history.redo()
-    }
-
     const handleEdgeMouseUp = () => {
       // 连线拖动结束：恢复画布平移
       if (edgeDrag) {
@@ -812,6 +804,14 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
     setSelectedEdge({ ...selectedEdge, arrow, label })
   }
 
+  const handleUndo = () => {
+    historyRef.current?.undo()
+  }
+
+  const handleRedo = () => {
+    historyRef.current?.redo()
+  }
+
   if (!open) return null
 
   return (
@@ -819,6 +819,24 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
       <div className="flow-editor-modal" onClick={(e) => e.stopPropagation()}>
         <div className="flow-editor-header">
           <h3>事件流程编辑器</h3>
+          <div className="flow-editor-history">
+            <button 
+              className="btn btn-secondary" 
+              onClick={handleUndo}
+              disabled={!canUndo}
+              title="撤销 (Ctrl+Z)"
+            >
+              撤销
+            </button>
+            <button 
+              className="btn btn-secondary" 
+              onClick={handleRedo}
+              disabled={!canRedo}
+              title="重做 (Ctrl+Shift+Z)"
+            >
+              重做
+            </button>
+          </div>
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
 
@@ -856,28 +874,8 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
         </div>
 
         <div className="flow-editor-footer">
-          <div className="flow-editor-history">
-            <button 
-              className="btn btn-secondary" 
-              onClick={handleUndo}
-              disabled={!canUndo}
-              title="撤销 (Ctrl+Z)"
-            >
-              撤销
-            </button>
-            <button 
-              className="btn btn-secondary" 
-              onClick={handleRedo}
-              disabled={!canRedo}
-              title="重做 (Ctrl+Shift+Z)"
-            >
-              重做
-            </button>
-          </div>
-          <div className="flow-editor-actions">
-            <button className="btn btn-secondary" onClick={onClose}>取消</button>
-            <button className="btn btn-primary" onClick={handleSave}>保存</button>
-          </div>
+          <button className="btn btn-secondary" onClick={onClose}>取消</button>
+          <button className="btn btn-primary" onClick={handleSave}>保存</button>
         </div>
       </div>
     </div>

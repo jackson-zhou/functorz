@@ -37,6 +37,11 @@
   color: #333;
 }
 
+.flow-editor-history {
+  display: flex;
+  gap: 8px;
+}
+
 .close-btn {
   background: none;
   border: none;
@@ -186,21 +191,10 @@
 
 .flow-editor-footer {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: flex-end;
   gap: 12px;
   padding: 16px 24px;
   border-top: 1px solid #e8e8e8;
-}
-
-.flow-editor-history {
-  display: flex;
-  gap: 8px;
-}
-
-.flow-editor-actions {
-  display: flex;
-  gap: 12px;
 }
 
 .flow-editor-footer .btn:disabled {
