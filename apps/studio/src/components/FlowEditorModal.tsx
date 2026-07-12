@@ -48,9 +48,12 @@ function getMarkerConfig(arrow: string) {
 export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: FlowEditorModalProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const graphRef = useRef<Graph | null>(null)
+  const historyRef = useRef<History | null>(null)
   const [selectedNode, setSelectedNode] = useState<{ id: string; type: string; label: string; config: Record<string, unknown> } | null>(null)
   const [selectedEdge, setSelectedEdge] = useState<{ id: string; arrow: string; label: string } | null>(null)
   const [dragPreview, setDragPreview] = useState<{ x: number; y: number; label: string; color: string } | null>(null)
+  const [canUndo, setCanUndo] = useState(false)
+  const [canRedo, setCanRedo] = useState(false)
   const selectedNodeRef = useRef(selectedNode)
   const selectedEdgeRef = useRef(selectedEdge)
   selectedNodeRef.current = selectedNode
@@ -217,6 +220,12 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
 
     const history = new History({ enabled: true })
     graph.use(history)
+    historyRef.current = history
+
+    history.on('change', () => {
+      setCanUndo(history.canUndo())
+      setCanRedo(history.canRedo())
+    })
 
     graph.on('node:click', ({ node }: { node: Node }) => {
       const data = node.getData()
@@ -353,6 +362,14 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
       }
       edgeDrag.lastX = pt.x
       edgeDrag.lastY = pt.y
+    }
+
+    const handleUndo = () => {
+      history.undo()
+    }
+
+    const handleRedo = () => {
+      history.redo()
     }
 
     const handleEdgeMouseUp = () => {
@@ -569,8 +586,10 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
       window.removeEventListener('keydown', handleKeyDown, { capture: true })
       document.removeEventListener('mousemove', handleEdgeMouseMove)
       document.removeEventListener('mouseup', handleEdgeMouseUp)
+      history.dispose()
       graph.dispose()
       graphRef.current = null
+      historyRef.current = null
       setSelectedNode(null)
     }
   }, [open, initialFlow])
@@ -837,8 +856,28 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
         </div>
 
         <div className="flow-editor-footer">
-          <button className="btn btn-secondary" onClick={onClose}>取消</button>
-          <button className="btn btn-primary" onClick={handleSave}>保存</button>
+          <div className="flow-editor-history">
+            <button 
+              className="btn btn-secondary" 
+              onClick={handleUndo}
+              disabled={!canUndo}
+              title="撤销 (Ctrl+Z)"
+            >
+              撤销
+            </button>
+            <button 
+              className="btn btn-secondary" 
+              onClick={handleRedo}
+              disabled={!canRedo}
+              title="重做 (Ctrl+Shift+Z)"
+            >
+              重做
+            </button>
+          </div>
+          <div className="flow-editor-actions">
+            <button className="btn btn-secondary" onClick={onClose}>取消</button>
+            <button className="btn btn-primary" onClick={handleSave}>保存</button>
+          </div>
         </div>
       </div>
     </div>
