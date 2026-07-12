@@ -298,14 +298,29 @@ graph TB
   <h3>4.1 loginFlow - 登录按钮点击（完整流程）</h3>
   <div class="mermaid">
     <pre class="mermaid">
-flowchart TD
-    START["开始"]
-    API["API: /api/login<br/>method: POST<br/>body: phone + password"]
-    COND{"登录成功?<br/>response.code == 0<br/>&& msg contains 成功"}
-    NAV["跳转首页<br/>pageId: ecommerce"]
-    ALERT["登录失败<br/>type: error<br/>msg: 账号或密码错误"]
-    END1["结束"]
-    END2["结束"]
+flowchart LR
+    subgraph C1[" "]
+        direction TB
+        START["开始"]
+    end
+    subgraph C2[" "]
+        direction TB
+        API["API: /api/login<br/>method: POST<br/>body: phone + password"]
+    end
+    subgraph C3[" "]
+        direction TB
+        COND{"登录成功?<br/>response.code == 0<br/>&& msg contains 成功"}
+    end
+    subgraph C4[" "]
+        direction TB
+        NAV["跳转首页<br/>pageId: ecommerce"]
+        ALERT["登录失败<br/>type: error<br/>msg: 账号或密码错误"]
+    end
+    subgraph C5[" "]
+        direction TB
+        END1["结束"]
+        END2["结束"]
+    end
 
     START -->|开始| API
     API -->|POST| COND
@@ -358,25 +373,54 @@ flowchart LR
   <p style="font-size:13px;color:var(--muted);margin-bottom:8px;">进入页面时触发，依次请求导航栏、金刚位、商品列表三个接口：</p>
   <div class="mermaid">
     <pre class="mermaid">
-flowchart TD
-    START["进入页面"]
-
-    T_API["获取导航栏<br/>GET /api/home/tabs"]
-    T_COND{"请求成功?"}
-    T_SET["更新导航栏<br/>target: home.tabs<br/>source: response.data"]
-    T_ERR["使用默认导航"]
-
-    K_API["获取金刚位<br/>GET /api/home/kingkong"]
-    K_COND{"请求成功?"}
-    K_SET["更新金刚位<br/>target: home.kingKong<br/>source: response.data"]
-    K_ERR["使用默认金刚位"]
-
-    P_API["获取商品列表<br/>GET /api/home/products"]
-    P_COND{"请求成功?"}
-    P_SET["更新商品列表<br/>target: home.products<br/>source: response.data"]
-    P_ERR["使用默认商品"]
-
-    END["完成"]
+flowchart LR
+    subgraph C1[" "]
+        direction TB
+        START["进入页面"]
+    end
+    subgraph C2[" "]
+        direction TB
+        T_API["获取导航栏<br/>GET /api/home/tabs"]
+    end
+    subgraph C3[" "]
+        direction TB
+        T_COND{"请求成功?"}
+    end
+    subgraph C4[" "]
+        direction TB
+        T_SET["更新导航栏<br/>target: home.tabs<br/>source: response.data"]
+        T_ERR["使用默认导航"]
+    end
+    subgraph C5[" "]
+        direction TB
+        K_API["获取金刚位<br/>GET /api/home/kingkong"]
+    end
+    subgraph C6[" "]
+        direction TB
+        K_COND{"请求成功?"}
+    end
+    subgraph C7[" "]
+        direction TB
+        K_SET["更新金刚位<br/>target: home.kingKong<br/>source: response.data"]
+        K_ERR["使用默认金刚位"]
+    end
+    subgraph C8[" "]
+        direction TB
+        P_API["获取商品列表<br/>GET /api/home/products"]
+    end
+    subgraph C9[" "]
+        direction TB
+        P_COND{"请求成功?"}
+    end
+    subgraph C10[" "]
+        direction TB
+        P_SET["更新商品列表<br/>target: home.products<br/>source: response.data"]
+        P_ERR["使用默认商品"]
+    end
+    subgraph C11[" "]
+        direction TB
+        END["完成"]
+    end
 
     START --> T_API
     T_API --> T_COND
@@ -411,13 +455,26 @@ flowchart TD
   <h3>5.2 searchFlow - 搜索栏点击</h3>
   <div class="mermaid">
     <pre class="mermaid">
-flowchart TD
-    START["开始"]
-    COND{"关键词非空?<br/>keyword != ''"}
-    NAV["跳转到搜索结果"]
-    ALERT["请输入关键词"]
-    END1["结束"]
-    END2["结束"]
+flowchart LR
+    subgraph C1[" "]
+        direction TB
+        START["开始"]
+    end
+    subgraph C2[" "]
+        direction TB
+        COND{"关键词非空?<br/>keyword != ''"}
+    end
+    subgraph C3[" "]
+        direction TB
+        NAV["跳转到搜索结果"]
+        ALERT["请输入关键词"]
+    end
+    subgraph C4[" "]
+        direction TB
+        END1["结束"]
+        END2["结束"]
+    end
+
     START --> COND
     COND -->|是| NAV
     COND -->|否| ALERT
@@ -450,14 +507,30 @@ flowchart LR
   <h3>5.4 loadMoreFlow - 商品列表滚动加载</h3>
   <div class="mermaid">
     <pre class="mermaid">
-flowchart TD
-    START["滚动到 2/3"]
-    API["请求第2页<br/>GET /api/home/products?page=2"]
-    COND{"请求成功?"}
-    SET["追加商品<br/>target: home.products<br/>source: response.data"]
-    ALERT["没有更多商品了"]
-    END1["结束"]
-    END2["结束"]
+flowchart LR
+    subgraph C1[" "]
+        direction TB
+        START["滚动到 2/3"]
+    end
+    subgraph C2[" "]
+        direction TB
+        API["请求第2页<br/>GET /api/home/products?page=2"]
+    end
+    subgraph C3[" "]
+        direction TB
+        COND{"请求成功?"}
+    end
+    subgraph C4[" "]
+        direction TB
+        SET["追加商品<br/>target: home.products<br/>source: response.data"]
+        ALERT["没有更多商品了"]
+    end
+    subgraph C5[" "]
+        direction TB
+        END1["结束"]
+        END2["结束"]
+    end
+
     START --> API
     API --> COND
     COND -->|是| SET
@@ -481,13 +554,26 @@ flowchart TD
   <h3>5.5 navFlow - 底部导航切换</h3>
   <div class="mermaid">
     <pre class="mermaid">
-flowchart TD
-    START["开始"]
-    COND{"已登录?<br/>isLogin == true"}
-    NAV1["跳转到对应页面"]
-    NAV2["跳转到登录页"]
-    END1["结束"]
-    END2["结束"]
+flowchart LR
+    subgraph C1[" "]
+        direction TB
+        START["开始"]
+    end
+    subgraph C2[" "]
+        direction TB
+        COND{"已登录?<br/>isLogin == true"}
+    end
+    subgraph C3[" "]
+        direction TB
+        NAV1["跳转到对应页面"]
+        NAV2["跳转到登录页"]
+    end
+    subgraph C4[" "]
+        direction TB
+        END1["结束"]
+        END2["结束"]
+    end
+
     START --> COND
     COND -->|是| NAV1
     COND -->|否| NAV2
