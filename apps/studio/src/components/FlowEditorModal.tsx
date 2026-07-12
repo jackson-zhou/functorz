@@ -209,6 +209,7 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
         vertexMovable: true,
         vertexAddable: true,
         vertexDeletable: true,
+        arrowheadMovable: true,
       },
     })
 
@@ -227,25 +228,24 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
       })
       setSelectedEdge(null)
       showNodePorts(node)
+      // 恢复所有连线样式，移除边工具
+      graph.getEdges().forEach((edge: Edge) => {
+        edge.attr('line/stroke', '#A2B1C3')
+        edge.attr('line/strokeWidth', 2)
+        edge.removeTools()
+      })
     })
 
-    // 双击连线添加顶点（弯折）
+    // 双击连线添加弯折点（vertices 工具 addable=false，由 dblclick 手动添加）
     graph.on('edge:dblclick', ({ edge, x, y }: { edge: Edge; x: number; y: number }) => {
       const vertices = edge.getVertices()
-      const newVertex = { x, y }
-      
-      // 找到插入位置（距离最近的位置）
       let insertIndex = vertices.length
       for (let i = 0; i < vertices.length; i++) {
         const v = vertices[i]
         const dist = Math.sqrt(Math.pow(v.x - x, 2) + Math.pow(v.y - y, 2))
-        if (dist < 30) {
-          // 太近了，不添加
-          return
-        }
+        if (dist < 30) return
       }
-      
-      edge.insertVertex(newVertex, insertIndex)
+      edge.insertVertex({ x, y }, insertIndex)
     })
 
     graph.on('edge:click', ({ edge }: { edge: Edge }) => {
@@ -265,9 +265,43 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
           other.removeTools()
         }
       })
-      // 高亮当前连线（单击仅选中，不加任何工具）
+      // 高亮当前连线，添加顶点和端点拖拽工具（用 arrowhead 工具处理拖动和磁吸）
       edge.attr('line/stroke', '#1890ff')
       edge.attr('line/strokeWidth', 3)
+      edge.addTools([
+        {
+          name: 'vertices',
+          args: {
+            addable: false,
+            stopPropagation: false,
+            attrs: { fill: '#1890ff', stroke: '#1890ff' },
+          },
+        },
+        {
+          name: 'source-arrowhead',
+          args: {
+            attrs: {
+              d: 'M -5 -5 m 5 0 a 5 5 0 1 0 0 10 a 5 5 0 1 0 0 -10',  // 圆圈路径
+              fill: '#1890ff',
+              stroke: '#fff',
+              'stroke-width': 2,
+              cursor: 'pointer',
+            },
+          },
+        },
+        {
+          name: 'target-arrowhead',
+          args: {
+            attrs: {
+              d: 'M -5 -5 m 5 0 a 5 5 0 1 0 0 10 a 5 5 0 1 0 0 -10',  // 圆圈路径（避免与 targetMarker 重叠）
+              fill: '#1890ff',
+              stroke: '#fff',
+              'stroke-width': 2,
+              cursor: 'pointer',
+            },
+          },
+        },
+      ])
       const edgeData = edge.getData() || {}
       const labelText = edge.getLabels()?.[0]?.attrs?.text?.text
       setSelectedEdge({
@@ -281,7 +315,10 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
     let edgeDrag: { edge: Edge; startX: number; startY: number; lastX: number; lastY: number; detached: boolean } | null = null
     let edgeWasDragged = false
 
-    graph.on('edge:mousedown', ({ edge, x, y }: { edge: Edge; x: number; y: number }) => {
+    graph.on('edge:mousedown', ({ edge, x, y, e }: { edge: Edge; x: number; y: number; e: MouseEvent }) => {
+      // 点击工具手柄（顶点圆圈、箭头端点）时不启动整体拖动
+      const target = e?.target as SVGElement | undefined
+      if (target?.closest('.x6-edge-tools')) return
       edgeDrag = { edge, startX: x, startY: y, lastX: x, lastY: y, detached: false }
       // 禁用画布平移，防止拖动连线时画布跟着动
       graph.disablePanning()
@@ -335,33 +372,15 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
     document.addEventListener('mousemove', handleEdgeMouseMove)
     document.addEventListener('mouseup', handleEdgeMouseUp)
 
-    // 点击空白处移除所有边工具
+    // 点击空白处：取消选中、恢复连线样式、移除边工具、隐藏端口
     graph.on('blank:click', () => {
-      graph.getEdges().forEach((edge: Edge) => {
-        edge.removeTools()
-      })
-    })
-
-    // 点击节点时移除边工具
-    graph.on('node:click', () => {
-      graph.getEdges().forEach((edge: Edge) => {
-        edge.removeTools()
-      })
-    })
-
-    // 取消选中时恢复连线样式
-    graph.on('blank:click', () => {
+      setSelectedNode(null)
+      setSelectedEdge(null)
+      hideAllPorts()
       graph.getEdges().forEach((edge: Edge) => {
         edge.attr('line/stroke', '#A2B1C3')
         edge.attr('line/strokeWidth', 2)
-      })
-    })
-
-    // 点击节点时取消所有连线的选中状态
-    graph.on('node:click', ({ node }: { node: Node }) => {
-      graph.getEdges().forEach((edge: Edge) => {
-        edge.attr('line/stroke', '#A2B1C3')
-        edge.attr('line/strokeWidth', 2)
+        edge.removeTools()
       })
     })
 
@@ -381,12 +400,6 @@ export default function FlowEditorModal({ open, initialFlow, onSave, onClose }: 
         })
       })
     }
-
-    graph.on('blank:click', () => {
-      setSelectedNode(null)
-      setSelectedEdge(null)
-      hideAllPorts()
-    })
 
     graph.on('node:removed', () => {
       setSelectedNode(null)
