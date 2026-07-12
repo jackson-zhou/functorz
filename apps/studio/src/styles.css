@@ -222,32 +222,32 @@ select {
   position: sticky;
   z-index: 5;
   top: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  padding: 10px 12px 0;
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
   border-bottom: 1px solid #e7e7ee;
   background: #fff;
 }
 .right-tabs button {
   position: relative;
-  padding: 10px 8px 12px;
+  padding: 6px 12px;
   border: 0;
   background: transparent;
   color: #8a8b9b;
   font-weight: 600;
+  font-size: 13px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+.right-tabs button:hover {
+  background: #f5f5f5;
 }
 .right-tabs button.active {
   color: #302e45;
+  background: #f0eff9;
 }
 .right-tabs button.active::after {
-  position: absolute;
-  right: 18px;
-  bottom: -1px;
-  left: 18px;
-  height: 2px;
-  border-radius: 2px 2px 0 0;
-  background: #6d5dfc;
-  content: '';
+  display: none;
 }
 .right-tabs button:focus-visible {
   outline: 2px solid #8d82ff;
@@ -1078,4 +1078,64 @@ select {
   background: #222;
   color: white;
   font-size: 12px;
+}
+.event-table {
+  margin-top: 8px;
+}
+.event-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.event-table th {
+  text-align: left;
+  padding: 10px 8px;
+  background: #f5f5f5;
+  color: #666;
+  font-weight: 600;
+  border-bottom: 2px solid #e8e8e8;
+}
+.event-table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
+}
+.event-table tbody tr:hover {
+  background: #fafafa;
+}
+.event-table tbody tr.bound {
+  background: #f6ffed;
+}
+.event-table tbody tr.bound:hover {
+  background: #f4ffe8;
+}
+.event-table .bound-td {
+  color: #52c41a;
+  font-size: 12px;
+}
+.btn-clear-event {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  background: transparent;
+  color: #c5c6d0;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 140ms ease, background-color 140ms ease, color 140ms ease;
+  border: none;
+}
+.event-table tbody tr:hover .btn-clear-event {
+  opacity: 1;
+}
+.btn-clear-event:hover {
+  background: #fee;
+  color: #e53935;
 }
